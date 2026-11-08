@@ -1,0 +1,112 @@
+# ==========================================
+# DEPENDENCIES
+# ==========================================
+node_modules/
+.pnpm-store/
+.pnp.*
+
+# ==========================================
+# FRONTEND - VITE / REACT
+# ==========================================
+frontend/dist/
+frontend/dist-ssr/
+frontend/.vite/
+frontend/coverage/
+
+# ==========================================
+# BACKEND - .NET / ASP.NET CORE
+# ==========================================
+**/bin/
+**/obj/
+**/out/
+**/publish/
+
+# .NET generated files
+*.dll
+*.exe
+*.pdb
+*.cache
+*.tmp
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+
+# ==========================================
+# ENVIRONMENT & SECRETS
+# ==========================================
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# ASP.NET Core development secrets
+secrets.json
+
+# User secrets / credentials
+appsettings.Local.json
+appsettings.*.Local.json
+
+# ==========================================
+# LOGS
+# ==========================================
+logs/
+Logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ==========================================
+# IDE / EDITOR
+# ==========================================
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+.vs/
+*.rsuser
+
+# ==========================================
+# BUILD & TEST
+# ==========================================
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+# ==========================================
+# OPERATING SYSTEM
+# ==========================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==========================================
+# DATABASE / LOCAL DATA
+# ==========================================
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+
+# ==========================================
+# TEMPORARY FILES
+# ==========================================
+*.swp
+*.swo
+*~
+*.bak
+
+# ==========================================
+# PNPM WORKSPACE
+# ==========================================
+.pnpm-debug.log*

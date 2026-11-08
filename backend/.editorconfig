@@ -10,3 +10,9 @@ trim_trailing_whitespace = true
 
 {*.cs,*.csproj,*.props,*.targets,*.json}
 indent_size = 2
+
+[src/Admission.Api/Infrastructure/Persistence/Migrations/*.cs]
+# EF Core migrations are generated code executed once per database. CA1861's
+# constant-array performance rationale does not apply to one-time migrations;
+# keep the analyzer enabled but downgrade to a suggestion for generated code.
+dotnet_diagnostic.CA1861.severity = suggestion

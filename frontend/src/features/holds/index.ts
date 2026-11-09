@@ -1,4 +1,4 @@
-export { MyHoldsList } from "./components/MyHoldsList"
+export { MyHoldsPanel } from "./components/MyHoldsPanel"
 export { HoldCard } from "./components/HoldCard"
 export { useApplyHold } from "./hooks/useApplyHold"
 export { useMyHolds } from "./hooks/useMyHolds"

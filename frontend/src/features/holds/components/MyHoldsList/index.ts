@@ -1,1 +1,0 @@
-export { MyHoldsList } from "./MyHoldsList"

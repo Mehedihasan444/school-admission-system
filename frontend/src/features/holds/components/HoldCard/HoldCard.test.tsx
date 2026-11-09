@@ -59,6 +59,6 @@ describe("HoldCard", () => {
     expect(
       screen.queryByRole("button", { name: messages.holds.cancel })
     ).not.toBeInTheDocument()
-    expect(screen.getAllByText("—").length).toBeGreaterThanOrEqual(1)
+    expect(screen.getByText(messages.holds.expiredNotice)).toBeInTheDocument()
   })
 })

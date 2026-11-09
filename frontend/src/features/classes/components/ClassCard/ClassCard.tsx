@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card"
 import { InlineError } from "@/shared/components/InlineError"
 import type { ClassSummary } from "@/features/classes/model/types"
-import type { HoldStatus } from "@/features/holds/model/types"
+import type { HoldStatus } from "@/features/holds"
 import { messages } from "@/shared/i18n/messages.bn"
 
 interface ClassCardProps {
@@ -65,7 +65,8 @@ export function ClassCard({
   onApply,
 }: ClassCardProps) {
   const hasSeats = classSummary.availableSeats > 0
-  const alreadyApplied = applicationStatus === "HELD" || applicationStatus === "CONFIRMED"
+  const alreadyApplied =
+    applicationStatus === "HELD" || applicationStatus === "CONFIRMED"
   const disabled = !canApply || !hasSeats || isApplying || alreadyApplied
 
   return (
@@ -114,13 +115,6 @@ export function ClassCard({
         {canApply && !hasSeats ? (
           <p className="text-center text-xs text-muted-foreground">
             {messages.classes.noSeats}
-          </p>
-        ) : null}
-        {canApply && hasSeats && alreadyApplied ? (
-          <p className="text-center text-xs text-muted-foreground">
-            {applicationStatus === "HELD"
-              ? messages.classes.applied
-              : messages.classes.confirmed}
           </p>
         ) : null}
       </CardFooter>

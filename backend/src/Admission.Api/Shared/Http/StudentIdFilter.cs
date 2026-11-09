@@ -29,7 +29,5 @@ public sealed class StudentIdFilter : IEndpointFilter
   }
 
   private static bool IsValidStudentId(string? studentId) =>
-      studentId is not null &&
-      studentId.Length == ExpectedLength &&
-      studentId.All(char.IsDigit);
+      studentId is { Length: ExpectedLength } && studentId.All(c => c is >= '0' and <= '9');
 }

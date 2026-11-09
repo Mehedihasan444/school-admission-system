@@ -1,5 +1,8 @@
 import { Component, type ErrorInfo, type ReactNode } from "react"
-import { messages } from "@/shared/i18n/messages.bn.ts"
+import { AlertCircle } from "lucide-react"
+
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { messages } from "@/shared/i18n/messages.bn"
 
 type Props = {
   children: ReactNode
@@ -30,8 +33,11 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         this.props.fallback ?? (
-          <div role="alert" aria-live="assertive">
-            {messages.unknownError}
+          <div className="mx-auto max-w-xl p-6">
+            <Alert variant="destructive" aria-live="assertive">
+              <AlertCircle aria-hidden="true" />
+              <AlertDescription>{messages.errors.unknown}</AlertDescription>
+            </Alert>
           </div>
         )
       )

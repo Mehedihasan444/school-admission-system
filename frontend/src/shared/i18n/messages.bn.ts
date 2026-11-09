@@ -1,10 +1,83 @@
 export const messages = {
-  classFull: "দুঃখিত, এই class-এ এখন কোনো seat খালি নেই।",
-  holdExpired: "আপনার আবেদনের মেয়াদ শেষ হয়ে গেছে। আবার আবেদন করুন।",
-  alreadyApplied: "আপনি এই class-এ ইতিমধ্যে আবেদন করেছেন।",
-  invalidStudentId: "জন্ম নিবন্ধন নম্বর ১৭ অঙ্কের হতে হবে।",
-  validationError: "দেওয়া তথ্যে ভুল আছে। অনুগ্রহ করে যাচাই করুন।",
-  networkError:
-    "সার্ভারের সাথে যোগাযোগ করা যাচ্ছে না। কিছুক্ষণ পরে আবার চেষ্টা করুন।",
-  unknownError: "কিছু একটা ভুল হয়েছে। আবার চেষ্টা করুন।",
+  appTitle: "স্কুল ভর্তি",
+  appSubtitle:
+    "প্রথমে আসা, প্রথমে ভর্তি — seat hold করুন, তারপর ফি দিয়ে নিশ্চিত করুন।",
+  retry: "আবার চেষ্টা করুন",
+  genericErrorTitle: "সমস্যা হয়েছে",
+
+  student: {
+    heading: "শিক্ষার্থীর পরিচয়",
+    label: "জন্ম নিবন্ধন নম্বর (১৭ অঙ্ক)",
+    placeholder: "যেমন ২০১৫২৬৯১২৩৪৫৬৭৮৯০",
+    setButton: "সংরক্ষণ করুন",
+    changeButton: "পরিবর্তন",
+    savedPrefix: "শিক্ষার্থী:",
+    invalid: "জন্ম নিবন্ধন নম্বর ১৭ অঙ্কের হতে হবে।",
+    hint: "এই নম্বরটি আপনার ব্রাউজারে সংরক্ষিত থাকবে।",
+  },
+
+  createClass: {
+    heading: "নতুন class তৈরি করুন",
+    description: "class-এর নাম ও seat সংখ্যা দিয়ে নতুন ভর্তি চালু করুন।",
+    nameLabel: "class-এর নাম",
+    namePlaceholder: "যেমন Class 6 - Morning Shift",
+    seatsLabel: "মোট seat সংখ্যা",
+    seatsPlaceholder: "যেমন ১২০",
+    submit: "class তৈরি করুন",
+    submitting: "তৈরি হচ্ছে...",
+    nameRequired: "class-এর নাম লিখুন।",
+    seatsInvalid: "seat সংখ্যা ১ থেকে ১,০০,০০০ এর মধ্যে হতে হবে।",
+    success: "class সফলভাবে তৈরি হয়েছে।",
+  },
+
+  classes: {
+    heading: "class তালিকা",
+    loading: "class তালিকা লোড হচ্ছে...",
+    empty: "এখনো কোনো class তৈরি করা হয়নি।",
+    totalSeats: "মোট seat",
+    heldSeats: "hold করা",
+    confirmedSeats: "নিশ্চিত",
+    availableSeats: "খালি seat",
+    apply: "আবেদন করুন",
+    applying: "আবেদন হচ্ছে...",
+    noSeats: "কোনো seat খালি নেই",
+    needStudentId: "আবেদন করতে উপরে জন্ম নিবন্ধন নম্বর দিন",
+  },
+
+  holds: {
+    heading: "আমার আবেদন",
+    empty: "আপনার কোনো আবেদন নেই।",
+    loading: "আবেদন লোড হচ্ছে...",
+    classLabel: "class",
+    pay: "ভর্তি ফি দিন",
+    paying: "নিশ্চিত হচ্ছে...",
+    cancel: "বাতিল করুন",
+    cancelling: "বাতিল হচ্ছে...",
+    timeRemaining: "বাকি সময়",
+    expiredNotice: "মেয়াদ শেষ",
+    confirmedNotice: "আপনার ভর্তি নিশ্চিত হয়েছে।",
+    cancelledNotice: "আবেদনটি বাতিল করা হয়েছে।",
+  },
+
+  status: {
+    HELD: "hold করা",
+    CONFIRMED: "নিশ্চিত",
+    EXPIRED: "মেয়াদ শেষ",
+    CANCELLED: "বাতিল",
+  } as const,
+
+  errors: {
+    classFull: "দুঃখিত, এই class-এ এখন কোনো seat খালি নেই।",
+    holdExpired: "আপনার আবেদনের মেয়াদ শেষ হয়ে গেছে। আবার আবেদন করুন।",
+    alreadyApplied: "আপনি এই class-এ ইতিমধ্যে আবেদন করেছেন।",
+    invalidStudentId: "জন্ম নিবন্ধন নম্বর ১৭ অঙ্কের হতে হবে।",
+    validationError: "দেওয়া তথ্যে ভুল আছে। অনুগ্রহ করে যাচাই করুন।",
+    classNotFound: "class-টি খুঁজে পাওয়া যায়নি।",
+    holdNotFound: "আবেদনটি খুঁজে পাওয়া যায়নি।",
+    holdCancelled: "এই আবেদনটি ইতিমধ্যে বাতিল করা হয়েছে।",
+    holdAlreadyConfirmed: "এই আবেদনটি ইতিমধ্যে নিশ্চিত করা হয়েছে।",
+    network:
+      "সার্ভারের সাথে যোগাযোগ করা যাচ্ছে না। কিছুক্ষণ পরে আবার চেষ্টা করুন।",
+    unknown: "কিছু একটা ভুল হয়েছে। আবার চেষ্টা করুন।",
+  },
 } as const

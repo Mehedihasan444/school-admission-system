@@ -1,18 +1,12 @@
 import { useState, type FormEvent } from "react"
 
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useCreateClass } from "@/features/classes/hooks/useCreateClass"
 import { InlineError } from "@/shared/components/InlineError"
 import { messages } from "@/shared/i18n/messages.bn"
+import { CheckCircle2, PlusCircle } from "lucide-react"
 
 const MIN_SEATS = 1
 const MAX_SEATS = 100_000
@@ -63,24 +57,35 @@ export function CreateClassForm() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{messages.createClass.heading}</CardTitle>
-        <CardDescription>{messages.createClass.description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-wrap justify-around gap-4"
-          noValidate
-        >
-          <div className="flex flex-1 flex-col gap-1.5">
-            <Label htmlFor="class-name">{messages.createClass.nameLabel}</Label>
+    <div className="rounded-xl border bg-card p-5 shadow-xs transition-shadow hover:shadow-sm">
+      <div className="flex flex-col gap-1 border-b pb-4">
+        <div className="flex items-center gap-2">
+          <PlusCircle className="size-4 text-primary" />
+          <h2 className="text-base font-semibold tracking-tight text-foreground">
+            {messages.createClass.heading}
+          </h2>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          {messages.createClass.description}
+        </p>
+      </div>
+
+      <form
+        onSubmit={handleSubmit}
+        className="mt-4 flex flex-col gap-4"
+        noValidate
+      >
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_160px_auto] sm:items-end">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="class-name" className="text-xs font-medium">
+              {messages.createClass.nameLabel}
+            </Label>
             <Input
               id="class-name"
               value={name}
               placeholder={messages.createClass.namePlaceholder}
               aria-invalid={Boolean(errors.name)}
+              className="h-9"
               onChange={(event) => {
                 setName(event.target.value)
                 setErrors((current) => ({ ...current, name: undefined }))
@@ -88,14 +93,14 @@ export function CreateClassForm() {
               }}
             />
             {errors.name ? (
-              <p className="text-sm text-destructive" role="alert">
+              <p className="text-xs text-destructive" role="alert">
                 {errors.name}
               </p>
             ) : null}
           </div>
 
-          <div className="flex flex-1 flex-col gap-1.5">
-            <Label htmlFor="class-seats">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="class-seats" className="text-xs font-medium">
               {messages.createClass.seatsLabel}
             </Label>
             <Input
@@ -104,6 +109,7 @@ export function CreateClassForm() {
               value={seats}
               placeholder={messages.createClass.seatsPlaceholder}
               aria-invalid={Boolean(errors.seats)}
+              className="h-9"
               onChange={(event) => {
                 setSeats(event.target.value)
                 setErrors((current) => ({ ...current, seats: undefined }))
@@ -111,28 +117,35 @@ export function CreateClassForm() {
               }}
             />
             {errors.seats ? (
-              <p className="text-sm text-destructive" role="alert">
+              <p className="text-xs text-destructive" role="alert">
                 {errors.seats}
               </p>
             ) : null}
           </div>
 
-          <InlineError error={mutation.error} />
+          <Button
+            type="submit"
+            disabled={mutation.isPending}
+            className="h-9 px-4 font-medium"
+          >
+            {mutation.isPending
+              ? messages.createClass.submitting
+              : messages.createClass.submit}
+          </Button>
+        </div>
 
-          {isSaved ? (
-            <p className="text-sm text-primary" role="status">
-              {messages.createClass.success}
-            </p>
-          ) : null}
-          <div className="flex flex-col justify-end gap-1.5">
-            <Button type="submit" disabled={mutation.isPending} className="">
-              {mutation.isPending
-                ? messages.createClass.submitting
-                : messages.createClass.submit}
-            </Button>
+        {mutation.error ? <InlineError error={mutation.error} /> : null}
+
+        {isSaved ? (
+          <div
+            className="flex items-center gap-1.5 text-xs font-medium text-emerald-600"
+            role="status"
+          >
+            <CheckCircle2 className="size-3.5" />
+            <span>{messages.createClass.success}</span>
           </div>
-        </form>
-      </CardContent>
-    </Card>
+        ) : null}
+      </form>
+    </div>
   )
 }

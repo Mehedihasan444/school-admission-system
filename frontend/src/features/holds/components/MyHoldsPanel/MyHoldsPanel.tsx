@@ -1,11 +1,14 @@
+import { useState } from "react"
+import { ClipboardList, AlertCircle, RefreshCw } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Badge } from "@/components/ui/badge"
 import { HoldCard } from "@/features/holds/components/HoldCard"
 import { useMyHolds } from "@/features/holds/hooks/useMyHolds"
 import type { MyHold } from "@/features/holds/model/types"
 import { InlineError } from "@/shared/components/InlineError"
 import { messages } from "@/shared/i18n/messages.bn"
-import { useState } from "react"
 
 export interface MyHoldsPanelProps {
   studentId: string | null
@@ -33,7 +36,19 @@ function sortHolds(holds: MyHold[]): MyHold[] {
 function LoadingHolds() {
   return (
     <div className="flex flex-col gap-3" aria-busy="true">
-      <Skeleton className="h-40 w-full" />
+      {[0, 1].map((index) => (
+        <div
+          key={index}
+          className="flex flex-col gap-2.5 rounded-xl border bg-card p-4 shadow-xs"
+        >
+          <div className="flex justify-between">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-16" />
+          </div>
+          <Skeleton className="h-8 w-24" />
+          <Skeleton className="h-3 w-40" />
+        </div>
+      ))}
       <span className="sr-only">{messages.holds.loading}</span>
     </div>
   )
@@ -47,12 +62,16 @@ export function MyHoldsPanel({ studentId }: MyHoldsPanelProps) {
     return (
       <section className="flex flex-col gap-4" aria-labelledby="holds-heading">
         <div className="flex flex-row items-center justify-between">
-          <h2 id="holds-heading" className="text-lg font-semibold">
+          <h2
+            id="holds-heading"
+            className="text-lg font-semibold tracking-tight"
+          >
             {messages.holds.heading}
           </h2>
         </div>
-        <div className="rounded-xl bg-muted px-6 py-8 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed bg-muted/30 px-6 py-10 text-center">
+          <AlertCircle className="size-6 text-muted-foreground/60" />
+          <p className="text-sm font-medium text-muted-foreground">
             {messages.classes.needStudentId}
           </p>
         </div>
@@ -61,17 +80,33 @@ export function MyHoldsPanel({ studentId }: MyHoldsPanelProps) {
   }
 
   if (holdsQuery.isLoading) {
-    return <LoadingHolds />
+    return (
+      <section className="flex flex-col gap-4" aria-labelledby="holds-heading">
+        <h2 id="holds-heading" className="text-lg font-semibold tracking-tight">
+          {messages.holds.heading}
+        </h2>
+        <LoadingHolds />
+      </section>
+    )
   }
 
   if (holdsQuery.isError) {
     return (
-      <div className="flex flex-col items-start gap-3">
-        <InlineError error={holdsQuery.error} />
-        <Button variant="outline" onClick={() => void holdsQuery.refetch()}>
-          {messages.retry}
-        </Button>
-      </div>
+      <section className="flex flex-col gap-4" aria-labelledby="holds-heading">
+        <h2 id="holds-heading" className="text-lg font-semibold tracking-tight">
+          {messages.holds.heading}
+        </h2>
+        <div className="flex flex-col items-start gap-3 rounded-xl border border-destructive/20 bg-destructive/5 p-4">
+          <InlineError error={holdsQuery.error} />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void holdsQuery.refetch()}
+          >
+            {messages.retry}
+          </Button>
+        </div>
+      </section>
     )
   }
 
@@ -86,12 +121,22 @@ export function MyHoldsPanel({ studentId }: MyHoldsPanelProps) {
 
   if (holds.length === 0) {
     return (
-      <div className="rounded-xl bg-muted px-6 py-8 text-center">
-        <p className="text-sm text-muted-foreground">{messages.holds.empty}</p>
-        <p className="mt-2 text-xs text-muted-foreground">
-          {messages.classes.needStudentId}
-        </p>
-      </div>
+      <section className="flex flex-col gap-4" aria-labelledby="holds-heading">
+        <div className="flex flex-row items-center justify-between">
+          <h2
+            id="holds-heading"
+            className="text-lg font-semibold tracking-tight"
+          >
+            {messages.holds.heading}
+          </h2>
+        </div>
+        <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed bg-muted/30 px-6 py-10 text-center">
+          <ClipboardList className="size-6 text-muted-foreground/60" />
+          <p className="text-sm font-medium text-muted-foreground">
+            {messages.holds.empty}
+          </p>
+        </div>
+      </section>
     )
   }
 
@@ -102,35 +147,45 @@ export function MyHoldsPanel({ studentId }: MyHoldsPanelProps) {
   return (
     <section className="flex flex-col gap-4" aria-labelledby="holds-heading">
       <div className="flex flex-row items-center justify-between">
-        <h2 id="holds-heading" className="text-lg font-semibold">
-          {messages.holds.heading}
-        </h2>
-        {inactiveHolds.length > MAX_VISIBLE_INACTIVE && !showMore ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setShowMore(true)}
+        <div className="flex items-center gap-2">
+          <h2
+            id="holds-heading"
+            className="text-lg font-semibold tracking-tight"
           >
-            {messages.holds.showMore}
-          </Button>
-        ) : null}
+            {messages.holds.heading}
+          </h2>
+          {activeHolds.length > 0 && (
+            <Badge
+              variant="secondary"
+              className="h-5 px-1.5 text-xs font-semibold"
+            >
+              {activeHolds.length}
+            </Badge>
+          )}
+        </div>
+        {holdsQuery.isFetching && !holdsQuery.isLoading && (
+          <RefreshCw className="size-3 animate-spin text-muted-foreground" />
+        )}
       </div>
 
-      {activeHolds.map((hold) => (
-        <HoldCard key={hold.holdId} hold={hold} studentId={studentId} />
-      ))}
-      {visibleInactive.map((hold) => (
-        <HoldCard key={hold.holdId} hold={hold} studentId={studentId} />
-      ))}
-      {inactiveHolds.length > MAX_VISIBLE_INACTIVE && showMore && (
+      <div className="flex flex-col gap-3">
+        {activeHolds.map((hold) => (
+          <HoldCard key={hold.holdId} hold={hold} studentId={studentId} />
+        ))}
+        {visibleInactive.map((hold) => (
+          <HoldCard key={hold.holdId} hold={hold} studentId={studentId} />
+        ))}
+      </div>
+
+      {inactiveHolds.length > MAX_VISIBLE_INACTIVE && (
         <Button
           type="button"
-          variant="outline"
+          variant="ghost"
           size="sm"
-          onClick={() => setShowMore(false)}
+          onClick={() => setShowMore(!showMore)}
+          className="text-xs text-muted-foreground hover:text-foreground"
         >
-          {messages.holds.showLess}
+          {showMore ? messages.holds.showLess : messages.holds.showMore}
         </Button>
       )}
     </section>

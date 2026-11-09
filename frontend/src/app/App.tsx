@@ -1,3 +1,6 @@
+import { useCallback, useState } from "react"
+import { GraduationCap } from "lucide-react"
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ClassGrid } from "@/features/classes/components/ClassGrid"
 import { CreateClassForm } from "@/features/classes/components/CreateClassForm"
@@ -5,7 +8,6 @@ import { MyHoldsPanel } from "@/features/holds/components/MyHoldsPanel"
 import { useApplyHold, useMyHolds } from "@/features/holds"
 import { StudentBar, useStudentId } from "@/features/student"
 import { messages } from "@/shared/i18n/messages.bn"
-import { useCallback, useState } from "react"
 
 export function App() {
   const { studentId, saveStudentId } = useStudentId()
@@ -33,38 +35,45 @@ export function App() {
     : null
 
   return (
-    <div className="mx-auto flex min-h-svh w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
-      <header className="flex flex-row items-center justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold tracking-tight">
-            {messages.appTitle}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {messages.appSubtitle}
-          </p>
+    <div className="mx-auto flex min-h-svh w-full max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6">
+      {/* App Header */}
+      <header className="flex flex-col gap-1 border-b pb-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3.5">
+          <div className="flex size-11 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+            <GraduationCap className="size-6" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">
+              {messages.appTitle}
+            </h1>
+            <p className="text-xs text-muted-foreground sm:text-sm">
+              {messages.appSubtitle}
+            </p>
+          </div>
         </div>
       </header>
-      <div className="flex w-full items-center gap-2">
-        <StudentBar studentId={studentId} onSave={saveStudentId} />
-      </div>
 
+      {/* Student Identity Bar */}
+      <StudentBar studentId={studentId} onSave={saveStudentId} />
+
+      {/* Create Class Form (Admin) */}
       <CreateClassForm />
 
-      {/* Mobile: tabs; Desktop: grid + sidebar */}
+      {/* Mobile: Tabs */}
       <div className="lg:hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="classes" className="w-full">
               {messages.classes.heading}
             </TabsTrigger>
-            <TabsTrigger value="holds" className="w-full">
+            <TabsTrigger value="holds" className="relative w-full">
               {messages.holds.heading}
               {activeHoldCount > 0 && (
-                <span className="ml-1 h-2 w-2 rounded-full bg-warning"></span>
+                <span className="ml-1.5 flex size-2 rounded-full bg-amber-500" />
               )}
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="classes" className="mt-4">
+          <TabsContent value="classes" className="mt-5">
             <ClassGrid
               studentId={studentId}
               applyingClassId={applyingClassId}
@@ -72,13 +81,14 @@ export function App() {
               allHolds={myHoldsQuery.data ?? []}
             />
           </TabsContent>
-          <TabsContent value="holds" className="mt-4">
+          <TabsContent value="holds" className="mt-5">
             <MyHoldsPanel studentId={studentId} />
           </TabsContent>
         </Tabs>
       </div>
 
-      <div className="hidden gap-6 lg:flex lg:flex-row">
+      {/* Desktop: Class Grid + Sticky Applications Sidebar */}
+      <div className="hidden gap-8 lg:flex lg:flex-row lg:items-start">
         <div className="min-w-0 flex-1">
           <ClassGrid
             studentId={studentId}
@@ -87,7 +97,7 @@ export function App() {
             allHolds={myHoldsQuery.data ?? []}
           />
         </div>
-        <div className="shrink-0 lg:sticky lg:top-6 lg:w-[420px]">
+        <div className="shrink-0 lg:sticky lg:top-6 lg:w-[380px] xl:w-[400px]">
           <MyHoldsPanel studentId={studentId} />
         </div>
       </div>

@@ -45,21 +45,20 @@ describe("HoldCard", () => {
     ).toBeEnabled()
   })
 
-  it("flips to EXPIRED and disables pay when the countdown reaches zero", () => {
+  it("flips to EXPIRED and hides action buttons when the countdown reaches zero", () => {
     renderCard(HOLD)
 
     act(() => {
       vi.advanceTimersByTime(4000)
     })
 
-    expect(screen.getAllByText(messages.status.EXPIRED).length).toBeGreaterThan(
-      0
-    )
+    expect(screen.getByText(messages.status.EXPIRED)).toBeInTheDocument()
     expect(
-      screen.getByRole("button", { name: messages.holds.pay })
-    ).toBeDisabled()
+      screen.queryByRole("button", { name: messages.holds.pay })
+    ).not.toBeInTheDocument()
     expect(
-      screen.getByRole("button", { name: messages.holds.cancel })
-    ).toBeDisabled()
+      screen.queryByRole("button", { name: messages.holds.cancel })
+    ).not.toBeInTheDocument()
+    expect(screen.getByText(/আবার আবেদন/)).toBeInTheDocument()
   })
 })

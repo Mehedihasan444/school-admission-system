@@ -92,4 +92,16 @@ describe("MyHoldsPanel", () => {
     renderPanel([], new Error("fail"))
     expect(screen.getByText(messages.retry)).toBeInTheDocument()
   })
+
+  it("prompts for student id when studentId is null", () => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    })
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MyHoldsPanel studentId={null} />
+      </QueryClientProvider>
+    )
+    expect(screen.getByText(messages.classes.needStudentId)).toBeInTheDocument()
+  })
 })

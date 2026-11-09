@@ -44,7 +44,20 @@ export function MyHoldsPanel({ studentId }: MyHoldsPanelProps) {
   const [showMore, setShowMore] = useState(false)
 
   if (studentId === null) {
-    return null
+    return (
+      <section className="flex flex-col gap-4" aria-labelledby="holds-heading">
+        <div className="flex flex-row items-center justify-between">
+          <h2 id="holds-heading" className="text-lg font-semibold">
+            {messages.holds.heading}
+          </h2>
+        </div>
+        <div className="rounded-xl bg-muted px-6 py-8 text-center">
+          <p className="text-sm text-muted-foreground">
+            {messages.classes.needStudentId}
+          </p>
+        </div>
+      </section>
+    )
   }
 
   if (holdsQuery.isLoading) {

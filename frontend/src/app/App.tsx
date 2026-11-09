@@ -32,23 +32,6 @@ export function App() {
     ? (applyMutation.variables?.classId ?? null)
     : null
 
-  // No student ID set: show centered ID entry card
-  if (studentId === null) {
-    return (
-      <div className="mx-auto flex min-h-svh w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6">
-        <header className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold tracking-tight">
-            {messages.appTitle}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {messages.appSubtitle}
-          </p>
-        </header>
-        <StudentBar studentId={null} onSave={saveStudentId} />
-      </div>
-    )
-  }
-
   return (
     <div className="mx-auto flex min-h-svh w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
       <header className="flex flex-row items-center justify-between gap-4">
@@ -61,9 +44,9 @@ export function App() {
           </p>
         </div>
       </header>
-        <div className="flex items-center gap-2 w-full">
-          <StudentBar studentId={studentId} onSave={saveStudentId} />
-        </div>
+      <div className="flex w-full items-center gap-2">
+        <StudentBar studentId={studentId} onSave={saveStudentId} />
+      </div>
 
       <CreateClassForm />
 

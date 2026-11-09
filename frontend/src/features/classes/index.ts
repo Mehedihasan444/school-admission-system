@@ -1,4 +1,4 @@
-export { ClassList } from "./components/ClassList"
+export { ClassGrid } from "./components/ClassGrid"
 export { CreateClassForm } from "./components/CreateClassForm"
 export { useClasses } from "./hooks/useClasses"
 export type { ClassSummary, CreateClassInput } from "./model/types"

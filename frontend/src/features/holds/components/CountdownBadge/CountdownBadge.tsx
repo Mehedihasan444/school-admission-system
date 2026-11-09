@@ -12,15 +12,19 @@ interface CountdownBadgeProps {
 export function CountdownBadge({ status, expiresAt }: CountdownBadgeProps) {
   const { remainingMs, isExpired } = useCountdown(expiresAt)
 
-  if (status !== "HELD" || isExpired) {
+  const showExpiry = status === "HELD" || status === "EXPIRED"
+
+  if (!showExpiry) {
     return null
   }
 
   return (
     <>
-      <Badge variant="secondary" aria-live="polite">
-        {messages.holds.timeRemaining}: {formatRemaining(remainingMs)}
-      </Badge>
+      {!isExpired ? (
+        <Badge variant="secondary" aria-live="polite">
+          {messages.holds.timeRemaining}: {formatRemaining(remainingMs)}
+        </Badge>
+      ) : null}
       <span className="text-xs text-muted-foreground">
         {messages.holds.expiresAt}: {formatExpiryTime(expiresAt)}
       </span>

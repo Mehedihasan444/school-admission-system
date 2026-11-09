@@ -6,6 +6,9 @@ using Admission.Common.Http;
 using Admission.Common.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +17,14 @@ builder.Services
     .AddSharedInfrastructure(builder.Configuration)
     .AddClassesModule()
     .AddHoldsModule();
+
+builder.Services.Configure<JsonOptions>(options =>
+{
+  // Hold statuses travel as upper-case contract values: HELD, CONFIRMED,
+  // EXPIRED, CANCELLED (PRD 5.4-5.8).
+  options.SerializerOptions.Converters.Add(
+      new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper));
+});
 
 var app = builder.Build();
 

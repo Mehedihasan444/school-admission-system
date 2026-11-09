@@ -18,6 +18,10 @@ public static class SharedInfrastructureModule
         .Validate(options => options.HoldDurationSeconds > 0, "HoldDurationSeconds must be positive.")
         .Validate(options => options.ExpirySweepSeconds > 0, "ExpirySweepSeconds must be positive.");
 
+    // Expose the resolved options as a concrete service for direct injection.
+    services.AddSingleton<AdmissionOptions>(sp =>
+        sp.GetRequiredService<IOptions<AdmissionOptions>>().Value);
+
     // The plain HOLD_DURATION_SECONDS env name (PRD section 9) overrides
     // any value bound from configuration sources.
     services.PostConfigure<AdmissionOptions>(options =>
@@ -31,7 +35,8 @@ public static class SharedInfrastructureModule
     });
 
     services.AddSingleton(TimeProvider.System);
-    services.AddSingleton<StudentIdContext>();
+    // Scoped: each request gets its own validated student id.
+    services.AddScoped<StudentIdContext>();
     services.AddHttpContextAccessor();
     services.AddExceptionHandler<GlobalExceptionHandler>();
     services.AddProblemDetails();
@@ -49,7 +54,18 @@ public static class SharedInfrastructureModule
     return services;
   }
 
-  private static string[] LoadAllowedOrigins(IConfiguration configuration) =>
-      configuration.GetSection($"{AdmissionOptions.SectionName}:{nameof(AdmissionOptions.CorsAllowedOrigins)}")
-          .Get<string[]>() ?? ["http://localhost:3000"];
+  private static string[] LoadAllowedOrigins(IConfiguration configuration)
+  {
+    // The spec names the plain CORS_ALLOWED_ORIGINS variable, so honour it
+    // before falling back to the strongly-typed configuration section.
+    var plainValue = Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS");
+    if (!string.IsNullOrWhiteSpace(plainValue))
+    {
+      return plainValue.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    }
+
+    return configuration
+        .GetSection($"{AdmissionOptions.SectionName}:{nameof(AdmissionOptions.CorsAllowedOrigins)}")
+        .Get<string[]>() ?? ["http://localhost:3000"];
+  }
 }

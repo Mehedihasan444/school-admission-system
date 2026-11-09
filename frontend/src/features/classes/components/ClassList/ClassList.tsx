@@ -3,13 +3,16 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { ClassCard } from "@/features/classes/components/ClassCard"
 import { useClasses } from "@/features/classes/hooks/useClasses"
 import { InlineError } from "@/shared/components/InlineError"
+import type { MyHold } from "@/features/holds/model/types"
 import { messages } from "@/shared/i18n/messages.bn"
 
 interface ClassListProps {
   studentId: string | null
   applyingClassId: string | null
-  applyError: unknown
   onApply: (classId: string) => void
+  myHolds: MyHold[]
+  applyErrorByClassId: Record<string, string>
+  onDismissApplyError: (classId: string) => void
 }
 
 function LoadingCards() {
@@ -33,18 +36,22 @@ function LoadingCards() {
 export function ClassList({
   studentId,
   applyingClassId,
-  applyError,
   onApply,
+  myHolds,
+  applyErrorByClassId,
+  onDismissApplyError,
 }: ClassListProps) {
   const classesQuery = useClasses()
+
+  const holdsByClassId = new Map(
+    myHolds.map((hold) => [hold.classId, hold.status])
+  )
 
   return (
     <section className="flex flex-col gap-4" aria-labelledby="classes-heading">
       <h2 id="classes-heading" className="text-xl font-semibold">
         {messages.classes.heading}
       </h2>
-
-      {applyError ? <InlineError error={applyError} /> : null}
 
       {classesQuery.isLoading ? <LoadingCards /> : null}
 
@@ -65,15 +72,22 @@ export function ClassList({
 
       {classesQuery.isSuccess && classesQuery.data.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2">
-          {classesQuery.data.map((classSummary) => (
-            <ClassCard
-              key={classSummary.id}
-              classSummary={classSummary}
-              canApply={studentId !== null}
-              isApplying={applyingClassId === classSummary.id}
-              onApply={onApply}
-            />
-          ))}
+          {classesQuery.data.map((classSummary) => {
+            const applicationStatus = holdsByClassId.get(classSummary.id) ?? null
+            const applyError = applyErrorByClassId[classSummary.id] ?? null
+            return (
+              <ClassCard
+                key={classSummary.id}
+                classSummary={classSummary}
+                canApply={studentId !== null}
+                isApplying={applyingClassId === classSummary.id}
+                applicationStatus={applicationStatus}
+                applyError={applyError}
+                onDismissError={() => onDismissApplyError(classSummary.id)}
+                onApply={onApply}
+              />
+            )
+          })}
         </div>
       ) : null}
     </section>

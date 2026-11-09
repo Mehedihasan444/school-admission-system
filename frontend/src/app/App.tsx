@@ -1,22 +1,51 @@
 import { ClassList, CreateClassForm } from "@/features/classes"
-import { MyHoldsList, useApplyHold } from "@/features/holds"
+import { MyHoldsList, useApplyHold, useMyHolds } from "@/features/holds"
 import { StudentBar, useStudentId } from "@/features/student"
+import { toMessage } from "@/shared/i18n/errorMessages"
 import { messages } from "@/shared/i18n/messages.bn"
+import { useCallback, useState } from "react"
 
 export function App() {
   const { studentId, saveStudentId } = useStudentId()
   const applyMutation = useApplyHold()
+  const myHoldsQuery = useMyHolds(studentId)
+  const [applyErrorByClassId, setApplyErrorByClassId] = useState<Record<
+    string,
+    string
+  >>({})
 
-  const applyingClassId = applyMutation.isPending
-    ? (applyMutation.variables?.classId ?? null)
-    : null
+  const onDismissApplyError = useCallback((classId: string) => {
+    setApplyErrorByClassId((prev) => {
+      const next = { ...prev }
+      delete next[classId]
+      return next
+    })
+  }, [])
 
-  const handleApply = (classId: string) => {
-    if (!studentId) {
-      return
-    }
-    applyMutation.mutate({ classId, studentId })
-  }
+  const handleApply = useCallback(
+    (classId: string) => {
+      if (!studentId) {
+        return
+      }
+      setApplyErrorByClassId({})
+      applyMutation.mutate({ classId, studentId }, {
+        onError: (error) => {
+          setApplyErrorByClassId((prev) => ({
+            ...prev,
+            [classId]: toMessage(error),
+          }))
+        },
+        onSuccess: () => {
+          setApplyErrorByClassId((prev) => {
+            const next = { ...prev }
+            delete next[classId]
+            return next
+          })
+        },
+      })
+    },
+    [studentId, applyMutation]
+  )
 
   return (
     <div className="mx-auto flex min-h-svh w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6">
@@ -33,9 +62,11 @@ export function App() {
         <CreateClassForm />
         <ClassList
           studentId={studentId}
-          applyingClassId={applyingClassId}
-          applyError={applyMutation.error}
+          applyingClassId={null}
           onApply={handleApply}
+          myHolds={myHoldsQuery.data ?? []}
+          applyErrorByClassId={applyErrorByClassId}
+          onDismissApplyError={onDismissApplyError}
         />
       </div>
 

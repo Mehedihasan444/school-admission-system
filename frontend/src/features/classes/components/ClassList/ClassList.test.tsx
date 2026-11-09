@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { ClassList } from "@/features/classes/components/ClassList"
 import type { ClassSummary } from "@/features/classes/model/types"
+import type { MyHold } from "@/features/holds/model/types"
 import { messages } from "@/shared/i18n/messages.bn"
 
 const { listClassesMock } = vi.hoisted(() => ({ listClassesMock: vi.fn() }))
@@ -24,8 +25,10 @@ function renderList(
       <ClassList
         studentId="20152691234567890"
         applyingClassId={null}
-        applyError={null}
         onApply={() => undefined}
+        myHolds={[]}
+        applyErrorByClassId={{}}
+        onDismissApplyError={() => undefined}
         {...props}
       />
     </QueryClientProvider>
@@ -43,6 +46,15 @@ function classSummary(overrides: Partial<ClassSummary> = {}): ClassSummary {
     ...overrides,
   }
 }
+
+const hold = (overrides: Partial<MyHold> = {}): MyHold => ({
+  holdId: "h-1",
+  classId: "c-1",
+  className: "Class 6 - Morning Shift",
+  status: "HELD",
+  expiresAt: "2026-01-01T00:00:00Z",
+  ...overrides,
+})
 
 describe("ClassList", () => {
   beforeEach(() => {
@@ -83,5 +95,25 @@ describe("ClassList", () => {
     })
     expect(apply).toBeDisabled()
     expect(screen.getByText(messages.classes.needStudentId)).toBeInTheDocument()
+  })
+
+  it("disables Apply with 'আবেদন করা হয়েছে' when student has a HELD hold", async () => {
+    listClassesMock.mockResolvedValue([classSummary()])
+    renderList({ myHolds: [hold({ classId: "c-1", status: "HELD" })] })
+
+    const apply = await screen.findByRole("button", {
+      name: messages.classes.applied,
+    })
+    expect(apply).toBeDisabled()
+  })
+
+  it("disables Apply with 'ভর্তি নিশ্চিত' when student has a CONFIRMED hold", async () => {
+    listClassesMock.mockResolvedValue([classSummary()])
+    renderList({ myHolds: [hold({ classId: "c-1", status: "CONFIRMED" })] })
+
+    const apply = await screen.findByRole("button", {
+      name: messages.classes.confirmed,
+    })
+    expect(apply).toBeDisabled()
   })
 })

@@ -1,3 +1,5 @@
+import { messages } from "@/shared/i18n/messages.bn"
+
 export type HoldStatus = "HELD" | "CONFIRMED" | "EXPIRED" | "CANCELLED"
 
 export interface Hold {
@@ -24,6 +26,15 @@ export interface ApplyHoldInput {
 export interface HoldActionInput {
   holdId: string
   studentId: string
+}
+
+export interface HoldActions {
+  canConfirm: boolean
+  canCancel: boolean
+  showCountdown: boolean
+  showApplyAgainHint: boolean
+  confirmLabel: string | null
+  notice: string | null
 }
 
 const TERMINAL_STATUSES: ReadonlySet<HoldStatus> = new Set([
@@ -59,4 +70,50 @@ export function isAwaitingPayment(status: HoldStatus): boolean {
 
 export function isTerminal(status: HoldStatus): boolean {
   return TERMINAL_STATUSES.has(status)
+}
+
+/**
+ * Pure decision: what actions and notices the UI should show for a hold whose
+ * effective status has already been computed. Keeps all status->UI mapping out
+ * of JSX (TRD 5.4).
+ */
+export function holdActionsFor(status: HoldStatus): HoldActions {
+  switch (status) {
+    case "HELD":
+      return {
+        canConfirm: true,
+        canCancel: true,
+        showCountdown: true,
+        showApplyAgainHint: false,
+        confirmLabel: messages.holds.pay,
+        notice: null,
+      }
+    case "CONFIRMED":
+      return {
+        canConfirm: false,
+        canCancel: false,
+        showCountdown: false,
+        showApplyAgainHint: false,
+        confirmLabel: null,
+        notice: messages.holds.confirmedNotice,
+      }
+    case "EXPIRED":
+      return {
+        canConfirm: false,
+        canCancel: false,
+        showCountdown: false,
+        showApplyAgainHint: true,
+        confirmLabel: null,
+        notice: `${messages.holds.expiredNotice} ${messages.holds.applyAgain}`,
+      }
+    case "CANCELLED":
+      return {
+        canConfirm: false,
+        canCancel: false,
+        showCountdown: false,
+        showApplyAgainHint: true,
+        confirmLabel: null,
+        notice: `${messages.holds.cancelledNotice} ${messages.holds.applyAgain}`,
+      }
+  }
 }

@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest"
 
 import {
   effectiveStatus,
+  holdActionsFor,
   isAwaitingPayment,
   isTerminal,
 } from "@/features/holds/model/types"
+import { messages } from "@/shared/i18n/messages.bn"
 
 const NOW = Date.parse("2026-01-01T00:00:00Z")
 
@@ -42,5 +44,47 @@ describe("hold state helpers", () => {
     expect(isTerminal("CONFIRMED")).toBe(true)
     expect(isTerminal("EXPIRED")).toBe(true)
     expect(isTerminal("CANCELLED")).toBe(true)
+  })
+})
+
+describe("holdActionsFor", () => {
+  it("HELD: confirm + cancel enabled, countdown shown, no notice", () => {
+    const actions = holdActionsFor("HELD")
+    expect(actions.canConfirm).toBe(true)
+    expect(actions.canCancel).toBe(true)
+    expect(actions.showCountdown).toBe(true)
+    expect(actions.showApplyAgainHint).toBe(false)
+    expect(actions.confirmLabel).toBe(messages.holds.pay)
+    expect(actions.notice).toBeNull()
+  })
+
+  it("CONFIRMED: no actions, success notice only", () => {
+    const actions = holdActionsFor("CONFIRMED")
+    expect(actions.canConfirm).toBe(false)
+    expect(actions.canCancel).toBe(false)
+    expect(actions.showCountdown).toBe(false)
+    expect(actions.showApplyAgainHint).toBe(false)
+    expect(actions.confirmLabel).toBeNull()
+    expect(actions.notice).toBe(messages.holds.confirmedNotice)
+  })
+
+  it("EXPIRED: no actions, apply-again hint notice", () => {
+    const actions = holdActionsFor("EXPIRED")
+    expect(actions.canConfirm).toBe(false)
+    expect(actions.canCancel).toBe(false)
+    expect(actions.showCountdown).toBe(false)
+    expect(actions.showApplyAgainHint).toBe(true)
+    expect(actions.confirmLabel).toBeNull()
+    expect(actions.notice).toContain(messages.holds.applyAgain)
+  })
+
+  it("CANCELLED: no actions, apply-again hint notice", () => {
+    const actions = holdActionsFor("CANCELLED")
+    expect(actions.canConfirm).toBe(false)
+    expect(actions.canCancel).toBe(false)
+    expect(actions.showCountdown).toBe(false)
+    expect(actions.showApplyAgainHint).toBe(true)
+    expect(actions.confirmLabel).toBeNull()
+    expect(actions.notice).toContain(messages.holds.applyAgain)
   })
 })

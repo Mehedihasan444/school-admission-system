@@ -42,6 +42,8 @@ export const messages = {
     applying: "আবেদন হচ্ছে...",
     noSeats: "কোনো seat খালি নেই",
     needStudentId: "আবেদন করতে উপরে জন্ম নিবন্ধন নম্বর দিন",
+    applied: "আবেদন করা হয়েছে",
+    confirmed: "ভর্তি নিশ্চিত",
   },
 
   holds: {
@@ -54,9 +56,10 @@ export const messages = {
     cancel: "বাতিল করুন",
     cancelling: "বাতিল হচ্ছে...",
     timeRemaining: "বাকি সময়",
-    expiredNotice: "মেয়াদ শেষ",
+    expiredNotice: "মেয়াদ শেষ হয়েছে।",
     confirmedNotice: "আপনার ভর্তি নিশ্চিত হয়েছে।",
     cancelledNotice: "আবেদনটি বাতিল করা হয়েছে।",
+    applyAgain: "আবার আবেদন করতে পারবেন।",
   },
 
   status: {

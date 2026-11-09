@@ -1,6 +1,7 @@
 import { messages } from "@/shared/i18n/messages.bn"
 
 export type HoldStatus = "HELD" | "CONFIRMED" | "EXPIRED" | "CANCELLED"
+export type ClassApplyState = "CAN_APPLY" | "HELD" | "CONFIRMED"
 
 export interface Hold {
   holdId: string
@@ -45,6 +46,46 @@ const TERMINAL_STATUSES: ReadonlySet<HoldStatus> = new Set([
 ])
 
 /**
+ * Determine what the UI should show for a class regarding the apply button.
+ * Sources: all existing holds for the class across ALL students.
+ * Rule: HELD or unexpired CONFIRMED → not applicable (cannot apply again)
+ * Rule: EXPIRED/CANCELLED → can apply again (including expired HELD)
+ * Returns: CAN_APPLY | HELD | CONFIRMED
+ */
+export function getClassApplyState(
+  classId: string,
+  allHolds: MyHold[],
+  nowMs: number = Date.now()
+): ClassApplyState {
+  const holdsForClass = allHolds.filter((h) => h.classId === classId)
+  if (holdsForClass.length === 0) return "CAN_APPLY"
+
+  const activeHolds = holdsForClass.filter((h) => {
+    if (h.status === "HELD") {
+      return Date.parse(h.expiresAt) > nowMs
+    }
+    return h.status === "CONFIRMED"
+  })
+
+  if (activeHolds.length === 0) return "CAN_APPLY"
+
+  const mostRecent = activeHolds.reduce((latest, h) => {
+    const latestTime = Date.parse(latest.expiresAt)
+    const hTime = Date.parse(h.expiresAt)
+    if (hTime > latestTime) return h
+    if (
+      hTime === latestTime &&
+      h.status === "CONFIRMED" &&
+      latest.status === "HELD"
+    )
+      return h
+    return latest
+  })
+
+  return mostRecent.status as ClassApplyState
+}
+
+/**
  * A stored HELD hold whose expiry has passed behaves as EXPIRED everywhere,
  * even before the background sweeper has updated the row (PRD 3.3).
  */
@@ -74,12 +115,12 @@ export function isTerminal(status: HoldStatus): boolean {
 }
 
 /**
- * Pure decision: what actions and notices the UI should show for a hold whose
- * effective status has already been computed. Keeps all status->UI mapping out
- * of JSX (TRD 5.4).
+ * Which actions the UI should show for a hold with a given effective status.
+ * HELD -> primary "ভর্তি ফি দিন" + secondary "বাতিল করুন"
+ * CONFIRMED/EXPIRED/CANCELLED -> no buttons (muted dash)
  */
-export function holdActionsFor(status: HoldStatus): HoldActions {
-  switch (status) {
+export function getHoldActions(effectiveStatus: HoldStatus): HoldActions {
+  switch (effectiveStatus) {
     case "HELD":
       return {
         canConfirm: true,
@@ -96,8 +137,8 @@ export function holdActionsFor(status: HoldStatus): HoldActions {
         canCancel: false,
         showCountdown: false,
         showApplyAgainHint: false,
-        confirmLabel: messages.status.CONFIRMED,
-        cancelLabel: messages.status.CONFIRMED,
+        confirmLabel: messages.holds.confirmedNotice,
+        cancelLabel: messages.holds.confirmedNotice,
         notice: messages.holds.confirmedNotice,
       }
     case "EXPIRED":
@@ -106,8 +147,8 @@ export function holdActionsFor(status: HoldStatus): HoldActions {
         canCancel: false,
         showCountdown: false,
         showApplyAgainHint: true,
-        confirmLabel: messages.status.EXPIRED,
-        cancelLabel: messages.status.EXPIRED,
+        confirmLabel: messages.holds.expiredNotice,
+        cancelLabel: messages.holds.expiredNotice,
         notice: `${messages.holds.expiredNotice} ${messages.holds.applyAgain}`,
       }
     case "CANCELLED":
@@ -116,8 +157,8 @@ export function holdActionsFor(status: HoldStatus): HoldActions {
         canCancel: false,
         showCountdown: false,
         showApplyAgainHint: true,
-        confirmLabel: messages.status.CANCELLED,
-        cancelLabel: messages.status.CANCELLED,
+        confirmLabel: messages.holds.cancelledNotice,
+        cancelLabel: messages.holds.cancelledNotice,
         notice: `${messages.holds.cancelledNotice} ${messages.holds.applyAgain}`,
       }
   }

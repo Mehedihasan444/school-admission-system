@@ -71,10 +71,10 @@ export function CreateClassForm() {
       <CardContent>
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col gap-4"
+          className="flex flex-wrap justify-around gap-4"
           noValidate
         >
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-1 flex-col gap-1.5">
             <Label htmlFor="class-name">{messages.createClass.nameLabel}</Label>
             <Input
               id="class-name"
@@ -94,7 +94,7 @@ export function CreateClassForm() {
             ) : null}
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-1 flex-col gap-1.5">
             <Label htmlFor="class-seats">
               {messages.createClass.seatsLabel}
             </Label>
@@ -124,12 +124,13 @@ export function CreateClassForm() {
               {messages.createClass.success}
             </p>
           ) : null}
-
-          <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending
-              ? messages.createClass.submitting
-              : messages.createClass.submit}
-          </Button>
+          <div className="flex flex-col justify-end gap-1.5">
+            <Button type="submit" disabled={mutation.isPending} className="">
+              {mutation.isPending
+                ? messages.createClass.submitting
+                : messages.createClass.submit}
+            </Button>
+          </div>
         </form>
       </CardContent>
     </Card>

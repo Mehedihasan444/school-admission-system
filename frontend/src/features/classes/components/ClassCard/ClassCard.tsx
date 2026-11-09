@@ -13,21 +13,17 @@ interface ClassCardProps {
 }
 
 function applyButtonLabel(
-  canApply: boolean,
   hasSeats: boolean,
   applicationStatus: HoldStatus | null
 ): string {
-  if (!canApply) {
-    return messages.classes.apply
-  }
-  if (!hasSeats) {
-    return messages.classes.apply
-  }
   if (applicationStatus === "HELD") {
     return messages.classes.applied
   }
   if (applicationStatus === "CONFIRMED") {
     return messages.classes.confirmed
+  }
+  if (!hasSeats) {
+    return messages.classes.noSeats
   }
   return messages.classes.apply
 }
@@ -69,7 +65,7 @@ export function ClassCard({
         >
           {isApplying
             ? messages.classes.applying
-            : applyButtonLabel(canApply, hasSeats, applicationStatus)}
+            : applyButtonLabel(hasSeats, applicationStatus)}
         </Button>
       </TableCell>
     </TableRow>

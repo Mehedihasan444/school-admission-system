@@ -5,7 +5,7 @@ import { useCancelHold } from "@/features/holds/hooks/useCancelHold"
 import { useConfirmHold } from "@/features/holds/hooks/useConfirmHold"
 import { TableCell, TableRow } from "@/components/ui/table"
 import type { MyHold } from "@/features/holds/model/types"
-import { holdActionsFor } from "@/features/holds/model/types"
+import { getHoldActions } from "@/features/holds"
 import { useCountdown } from "@/shared/hooks/useCountdown"
 import { messages } from "@/shared/i18n/messages.bn"
 
@@ -19,9 +19,9 @@ export function HoldCard({ hold, studentId }: HoldCardProps) {
   const confirmMutation = useConfirmHold()
   const cancelMutation = useCancelHold()
 
-  const displayStatus: "HELD" | "CONFIRMED" | "EXPIRED" | "CANCELLED" =
+  const effective: "HELD" | "CONFIRMED" | "EXPIRED" | "CANCELLED" =
     hold.status === "HELD" && isExpired ? "EXPIRED" : hold.status
-  const actions = holdActionsFor(displayStatus)
+  const actions = getHoldActions(effective)
   const isBusy = confirmMutation.isPending || cancelMutation.isPending
 
   const handleConfirm = () => {
@@ -36,34 +36,42 @@ export function HoldCard({ hold, studentId }: HoldCardProps) {
     <TableRow className="[&>td]:border-t-0">
       <TableCell className="text-left font-medium">{hold.className}</TableCell>
       <TableCell>
-        <HoldStatusBadge status={displayStatus} />
+        <HoldStatusBadge status={effective} />
       </TableCell>
       <TableCell>
         <CountdownBadge status={hold.status} expiresAt={hold.expiresAt} />
       </TableCell>
       <TableCell>
-        <Button
-          disabled={!actions.canConfirm || isBusy}
-          variant={actions.canConfirm ? "default" : "outline"}
-          onClick={handleConfirm}
-          className="w-full sm:w-auto"
-        >
-          {confirmMutation.isPending
-            ? messages.holds.paying
-            : (actions.confirmLabel ?? messages.holds.pay)}
-        </Button>
+        {actions.canConfirm ? (
+          <Button
+            disabled={!actions.canConfirm || isBusy}
+            variant={actions.canConfirm ? "default" : "outline"}
+            onClick={handleConfirm}
+            className="w-full sm:w-auto"
+          >
+            {confirmMutation.isPending
+              ? messages.holds.paying
+              : (actions.confirmLabel ?? messages.holds.pay)}
+          </Button>
+        ) : (
+          <div className="text-sm text-muted-foreground">—</div>
+        )}
       </TableCell>
       <TableCell>
-        <Button
-          variant={actions.canCancel ? "outline" : "ghost"}
-          disabled={!actions.canCancel || isBusy}
-          onClick={handleCancel}
-          className="w-full sm:w-auto"
-        >
-          {cancelMutation.isPending
-            ? messages.holds.cancelling
-            : (actions.cancelLabel ?? messages.holds.cancel)}
-        </Button>
+        {actions.canCancel ? (
+          <Button
+            variant={actions.canCancel ? "outline" : "ghost"}
+            disabled={!actions.canCancel || isBusy}
+            onClick={handleCancel}
+            className="w-full sm:w-auto"
+          >
+            {cancelMutation.isPending
+              ? messages.holds.cancelling
+              : (actions.cancelLabel ?? messages.holds.cancel)}
+          </Button>
+        ) : (
+          <div className="text-sm text-muted-foreground">—</div>
+        )}
       </TableCell>
     </TableRow>
   )

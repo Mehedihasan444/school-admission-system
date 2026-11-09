@@ -45,19 +45,20 @@ describe("HoldCard", () => {
     ).toBeEnabled()
   })
 
-  it("flips to EXPIRED and disables action buttons when the countdown reaches zero", () => {
+  it("flips to EXPIRED and removes action buttons when the countdown reaches zero", () => {
     renderCard(HOLD)
 
     act(() => {
       vi.advanceTimersByTime(4000)
     })
 
-    const buttons = screen.getAllByRole("button", {
-      name: messages.status.EXPIRED,
-    })
-    expect(buttons).toHaveLength(2)
-    expect(buttons[0]).toBeDisabled()
-    expect(buttons[1]).toBeDisabled()
-    expect(screen.getAllByText(messages.status.EXPIRED).length >= 1).toBe(true)
+    expect(screen.getByText(messages.status.EXPIRED)).toBeInTheDocument()
+    expect(
+      screen.queryByRole("button", { name: messages.holds.pay })
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole("button", { name: messages.holds.cancel })
+    ).not.toBeInTheDocument()
+    expect(screen.getAllByText("—").length).toBeGreaterThanOrEqual(1)
   })
 })

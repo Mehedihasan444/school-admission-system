@@ -2,16 +2,17 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ClassCard } from "@/features/classes/components/ClassCard"
 import { useClasses } from "@/features/classes/hooks/useClasses"
+import { getClassApplyState } from "@/features/holds"
+import type { MyHold } from "@/features/holds"
 import { Table, TableBody, TableHead, TableHeader } from "@/components/ui/table"
 import { InlineError } from "@/shared/components/InlineError"
-import type { MyHold } from "@/features/holds"
 import { messages } from "@/shared/i18n/messages.bn"
 
 interface ClassListProps {
   studentId: string | null
   applyingClassId: string | null
   onApply: (classId: string) => void
-  myHolds: MyHold[]
+  allHolds: MyHold[]
 }
 
 function LoadingCards() {
@@ -36,16 +37,15 @@ export function ClassList({
   studentId,
   applyingClassId,
   onApply,
-  myHolds,
+  allHolds,
 }: ClassListProps) {
   const classesQuery = useClasses()
 
-  const holdsByClassId = new Map(
-    myHolds.map((hold) => [hold.classId, hold.status])
-  )
-
   return (
-    <section className="flex flex-col gap-4" aria-labelledby="classes-heading">
+    <section
+      className="mt-6 flex flex-col gap-4"
+      aria-labelledby="classes-heading"
+    >
       <h2 id="classes-heading" className="text-xl font-semibold">
         {messages.classes.heading}
       </h2>
@@ -93,13 +93,15 @@ export function ClassList({
           </TableHeader>
           <TableBody>
             {classesQuery.data.map((classSummary) => {
+              const applyState = getClassApplyState(classSummary.id, allHolds)
               const applicationStatus =
-                holdsByClassId.get(classSummary.id) ?? null
+                applyState !== "CAN_APPLY" ? applyState : null
+
               return (
                 <ClassCard
                   key={classSummary.id}
                   classSummary={classSummary}
-                  canApply={studentId !== null}
+                  canApply={studentId !== null && applyState === "CAN_APPLY"}
                   isApplying={applyingClassId === classSummary.id}
                   applicationStatus={applicationStatus}
                   onApply={onApply}

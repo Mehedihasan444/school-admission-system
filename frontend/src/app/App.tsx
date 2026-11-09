@@ -34,13 +34,13 @@ export function App() {
 
       <StudentBar studentId={studentId} onSave={saveStudentId} />
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="">
         <CreateClassForm />
         <ClassList
           studentId={studentId}
           applyingClassId={applyingClassId}
           onApply={handleApply}
-          myHolds={myHoldsQuery.data ?? []}
+          allHolds={myHoldsQuery.data ?? []}
         />
       </div>
 

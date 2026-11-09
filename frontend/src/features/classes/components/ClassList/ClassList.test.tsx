@@ -26,7 +26,7 @@ function renderList(
         studentId="20152691234567890"
         applyingClassId={null}
         onApply={() => undefined}
-        myHolds={[]}
+        allHolds={[]}
         {...props}
       />
     </QueryClientProvider>
@@ -50,7 +50,7 @@ const hold = (overrides: Partial<MyHold> = {}): MyHold => ({
   classId: "c-1",
   className: "Class 6 - Morning Shift",
   status: "HELD",
-  expiresAt: "2026-01-01T00:00:00Z",
+  expiresAt: "2027-01-01T00:00:00Z",
   ...overrides,
 })
 
@@ -79,7 +79,7 @@ describe("ClassList", () => {
     renderList()
 
     const apply = await screen.findByRole("button", {
-      name: messages.classes.apply,
+      name: messages.classes.noSeats,
     })
     expect(apply).toBeDisabled()
   })
@@ -96,7 +96,7 @@ describe("ClassList", () => {
 
   it("disables Apply with 'আবেদন করা হয়েছে' when student has a HELD hold", async () => {
     listClassesMock.mockResolvedValue([classSummary()])
-    renderList({ myHolds: [hold({ classId: "c-1", status: "HELD" })] })
+    renderList({ allHolds: [hold({ classId: "c-1", status: "HELD" })] })
 
     const apply = await screen.findByRole("button", {
       name: messages.classes.applied,
@@ -106,7 +106,7 @@ describe("ClassList", () => {
 
   it("disables Apply with 'ভর্তি নিশ্চিত' when student has a CONFIRMED hold", async () => {
     listClassesMock.mockResolvedValue([classSummary()])
-    renderList({ myHolds: [hold({ classId: "c-1", status: "CONFIRMED" })] })
+    renderList({ allHolds: [hold({ classId: "c-1", status: "CONFIRMED" })] })
 
     const apply = await screen.findByRole("button", {
       name: messages.classes.confirmed,

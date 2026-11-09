@@ -11,7 +11,7 @@ namespace Admission.Features.Holds.Application;
 
 /// <summary>
 /// Handles <c>POST /classes/{classId}/holds</c> (PRD 5.4). One PostgreSQL transaction
-/// that takes a row-level lock on the class to enforce seat limits.
+/// that takes a row-level lock on the class to enforce seat limits across processes.
 /// </summary>
 public sealed class ApplyHoldHandler
 {
@@ -28,40 +28,47 @@ public sealed class ApplyHoldHandler
 
   public async Task<ApplyHoldResponse> Handle(string classId, string studentId, CancellationToken ct)
   {
-    var now = _clock.GetUtcNow();
-    var durationSeconds = _options.HoldDurationSeconds;
-    var expiresAt = now.AddSeconds(durationSeconds);
-
     if (!RouteParsing.TryParseId(classId, out var classGuid))
       throw AppException.ClassNotFound();
 
     await using var tx = await _db.Database.BeginTransactionAsync(ct);
     try
     {
-      // Lock the class row so concurrent applies for the same class serialize here.
-      // Raw SQL ensures PostgreSQL doesn't wrap the SELECT in an implicit transaction.
-      var totalSeats = await _db.Database
-          .SqlQuery<int>((FormattableString)$"SELECT total_seats FROM classes WHERE id = {classGuid}")
-          .FirstOrDefaultAsync(ct);
+      // Take a row-level lock on the class so concurrent applies for the same class
+      // serialize here. The lock is what makes the seat count below authoritative;
+      // it lives in PostgreSQL, so it also works across multiple API processes.
+      // ToListAsync keeps EF from wrapping the statement in an outer SELECT, which
+      // would hide the FOR UPDATE from a reader of the SQL log.
+      var lockedRows = await _db.Database
+          .SqlQuery<int>((FormattableString)$"SELECT total_seats AS \"Value\" FROM classes WHERE id = {classGuid} FOR UPDATE")
+          .ToListAsync(ct);
 
-      if (totalSeats <= 0)
+      if (lockedRows.Count == 0)
         throw AppException.ClassNotFound();
 
-      // Expire stale HELD rows of this class so their unique-index slot frees up.
+      var totalSeats = lockedRows[0];
+
+      // Read the clock only after the lock is acquired: we may have waited here,
+      // and an earlier timestamp could revive a hold that expired while waiting.
+      var now = _clock.GetUtcNow();
+      var expiresAt = now.AddSeconds(_options.HoldDurationSeconds);
+
+      // Expire stale HELD rows of this class so their seats and unique-index
+      // slots are free even when the background sweeper has not run.
       await _db.Database.ExecuteSqlInterpolatedAsync(
-          (FormattableString)$"UPDATE holds SET status = 'EXPIRED' WHERE class_id = {classGuid} AND status = 'HELD' AND expires_at <= {expiresAt}",
+          (FormattableString)$"UPDATE holds SET status = 'EXPIRED' WHERE class_id = {classGuid} AND status = 'HELD' AND expires_at <= {now}",
           ct);
 
-      // Students may have at most one active (HELD or CONFIRMED) hold per class.
+      // A student may have at most one active (HELD or CONFIRMED) hold per class.
       if (await _db.Holds.AnyAsync(h => h.ClassId == classGuid && h.StudentId == studentId &&
           (h.Status == HoldStatus.Held || h.Status == HoldStatus.Confirmed), ct))
         throw AppException.AlreadyApplied();
 
-      var existingCount = await _db.Holds
+      var usedSeats = await _db.Holds
           .CountAsync(h => h.ClassId == classGuid &&
               (h.Status == HoldStatus.Held || h.Status == HoldStatus.Confirmed), ct);
 
-      if (existingCount >= totalSeats)
+      if (usedSeats >= totalSeats)
         throw AppException.ClassFull();
 
       var entity = new Hold
@@ -74,7 +81,6 @@ public sealed class ApplyHoldHandler
         ExpiresAt = expiresAt
       };
 
-      // Handle the unique constraint violation as a second safety net for ALREADY_APPLIED.
       try
       {
         _db.Holds.Add(entity);
@@ -82,6 +88,7 @@ public sealed class ApplyHoldHandler
       }
       catch (DbUpdateException ex) when (ex.InnerException is PostgresException pg && pg.SqlState == "23505")
       {
+        // The partial unique index is the second line of defense for duplicate applies.
         throw AppException.AlreadyApplied();
       }
 

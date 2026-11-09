@@ -60,6 +60,7 @@ export const messages = {
     confirmedNotice: "আপনার ভর্তি নিশ্চিত হয়েছে।",
     cancelledNotice: "আবেদনটি বাতিল করা হয়েছে।",
     applyAgain: "আবার আবেদন করতে পারবেন।",
+    expiresAt: "শেষ হওয়া",
   },
 
   status: {
@@ -82,5 +83,6 @@ export const messages = {
     network:
       "সার্ভারের সাথে যোগাযোগ করা যাচ্ছে না। কিছুক্ষণ পরে আবার চেষ্টা করুন।",
     unknown: "কিছু একটা ভুল হয়েছে। আবার চেষ্টা করুন।",
+    dismiss: "বাদ দিন",
   },
 } as const

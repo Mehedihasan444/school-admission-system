@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { ClassList } from "@/features/classes/components/ClassList"
 import type { ClassSummary } from "@/features/classes/model/types"
-import type { MyHold } from "@/features/holds/model/types"
+import type { MyHold } from "@/features/holds"
 import { messages } from "@/shared/i18n/messages.bn"
 
 const { listClassesMock } = vi.hoisted(() => ({ listClassesMock: vi.fn() }))

@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { ClassCard } from "@/features/classes/components/ClassCard"
 import { useClasses } from "@/features/classes/hooks/useClasses"
 import { InlineError } from "@/shared/components/InlineError"
-import type { MyHold } from "@/features/holds/model/types"
+import type { MyHold } from "@/features/holds"
 import { messages } from "@/shared/i18n/messages.bn"
 
 interface ClassListProps {
@@ -73,7 +73,8 @@ export function ClassList({
       {classesQuery.isSuccess && classesQuery.data.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2">
           {classesQuery.data.map((classSummary) => {
-            const applicationStatus = holdsByClassId.get(classSummary.id) ?? null
+            const applicationStatus =
+              holdsByClassId.get(classSummary.id) ?? null
             const applyError = applyErrorByClassId[classSummary.id] ?? null
             return (
               <ClassCard

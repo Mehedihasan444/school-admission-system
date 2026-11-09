@@ -66,6 +66,8 @@ export const messages = {
     cancelledNotice: "আবেদনটি বাতিল করা হয়েছে।",
     applyAgain: "আবার আবেদন করতে পারবেন।",
     expiresAt: "শেষ হওয়া",
+    showMore: "আরও দেখুন",
+    showLess: "কম দেখুন",
   },
 
   status: {

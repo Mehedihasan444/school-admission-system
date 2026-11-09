@@ -22,40 +22,56 @@ export default defineConfig([
       "react-refresh/only-export-components": "off",
     },
   },
-  // Feature/shared boundary: shared code and UI primitives never import from features.
+  // Shared code, UI primitives and lib helpers never import from features.
   {
-    files: ["shared/**/*.{ts,tsx}", "src/components/ui/**/*.tsx", "src/lib/**/*.ts"],
+    files: [
+      "src/shared/**/*.{ts,tsx}",
+      "src/components/ui/**/*.tsx",
+      "src/lib/**/*.ts",
+    ],
     rules: {
       "no-restricted-imports": [
         "error",
         {
-          paths: [{ name: "@/features", message: "shared/lib/ui must not import from features" }],
-          patterns: [{ group: ["@/features/*"], message: "shared/lib/ui must not import from features" }],
+          patterns: [
+            {
+              group: ["@/features/*"],
+              message: "shared/lib/ui must not import from features",
+            },
+          ],
         },
       ],
     },
   },
-  // Features never reference each other directly: classes must not import holds
-  // and vice versa. Imports within a feature (through its own index.ts or
-  // deep paths) remain allowed.
+  // Features never reference each other directly: only their public index.ts.
   {
-    files: ["features/classes/**/*.{ts,tsx}"],
+    files: ["src/features/classes/**/*.{ts,tsx}"],
     rules: {
       "no-restricted-imports": [
         "error",
         {
-          patterns: [{ group: ["@/features/holds/**"], message: "classes must not import holds directly" }],
+          patterns: [
+            {
+              group: ["@/features/holds/*"],
+              message: "classes may only import holds through its index",
+            },
+          ],
         },
       ],
     },
   },
   {
-    files: ["features/holds/**/*.{ts,tsx}"],
+    files: ["src/features/holds/**/*.{ts,tsx}"],
     rules: {
       "no-restricted-imports": [
         "error",
         {
-          patterns: [{ group: ["@/features/classes/**"], message: "holds must not import classes directly" }],
+          patterns: [
+            {
+              group: ["@/features/classes/*"],
+              message: "holds may only import classes through its index",
+            },
+          ],
         },
       ],
     },

@@ -45,7 +45,7 @@ describe("HoldCard", () => {
     ).toBeEnabled()
   })
 
-  it("flips to EXPIRED and hides action buttons when the countdown reaches zero", () => {
+  it("flips to EXPIRED and disables action buttons when the countdown reaches zero", () => {
     renderCard(HOLD)
 
     act(() => {
@@ -54,11 +54,11 @@ describe("HoldCard", () => {
 
     expect(screen.getByText(messages.status.EXPIRED)).toBeInTheDocument()
     expect(
-      screen.queryByRole("button", { name: messages.holds.pay })
-    ).not.toBeInTheDocument()
+      screen.getByRole("button", { name: messages.holds.pay })
+    ).toBeDisabled()
     expect(
-      screen.queryByRole("button", { name: messages.holds.cancel })
-    ).not.toBeInTheDocument()
+      screen.getByRole("button", { name: messages.holds.cancel })
+    ).toBeDisabled()
     expect(screen.getByText(/আবার আবেদন/)).toBeInTheDocument()
   })
 })

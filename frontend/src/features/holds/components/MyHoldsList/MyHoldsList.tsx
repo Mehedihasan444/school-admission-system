@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { HoldCard } from "@/features/holds/components/HoldCard"
 import { useMyHolds } from "@/features/holds/hooks/useMyHolds"
+import { Table, TableBody, TableHead, TableHeader } from "@/components/ui/table"
 import { InlineError } from "@/shared/components/InlineError"
 import { messages } from "@/shared/i18n/messages.bn"
 
@@ -55,11 +56,30 @@ export function MyHoldsList({ studentId }: MyHoldsListProps) {
       {studentId !== null &&
       holdsQuery.isSuccess &&
       holdsQuery.data.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2">
-          {holdsQuery.data.map((hold) => (
-            <HoldCard key={hold.holdId} hold={hold} studentId={studentId} />
-          ))}
-        </div>
+        <Table className="rounded-lg border border-border">
+          <TableHeader>
+            <TableHead className="text-left font-medium text-muted-foreground">
+              {messages.holds.classLabel}
+            </TableHead>
+            <TableHead className="text-left font-medium text-muted-foreground">
+              {messages.holds.status}
+            </TableHead>
+            <TableHead className="text-left font-medium text-muted-foreground">
+              {messages.holds.expiresAt}
+            </TableHead>
+            <TableHead className="text-left font-medium text-muted-foreground">
+              {messages.holds.confirm}
+            </TableHead>
+            <TableHead className="text-left font-medium text-muted-foreground">
+              {messages.holds.cancel}
+            </TableHead>
+          </TableHeader>
+          <TableBody>
+            {holdsQuery.data.map((hold) => (
+              <HoldCard key={hold.holdId} hold={hold} studentId={studentId} />
+            ))}
+          </TableBody>
+        </Table>
       ) : null}
     </section>
   )

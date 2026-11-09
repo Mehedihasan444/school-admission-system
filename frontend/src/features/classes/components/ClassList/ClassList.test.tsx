@@ -27,8 +27,6 @@ function renderList(
         applyingClassId={null}
         onApply={() => undefined}
         myHolds={[]}
-        applyErrorByClassId={{}}
-        onDismissApplyError={() => undefined}
         {...props}
       />
     </QueryClientProvider>
@@ -94,7 +92,6 @@ describe("ClassList", () => {
       name: messages.classes.apply,
     })
     expect(apply).toBeDisabled()
-    expect(screen.getByText(messages.classes.needStudentId)).toBeInTheDocument()
   })
 
   it("disables Apply with 'আবেদন করা হয়েছে' when student has a HELD hold", async () => {

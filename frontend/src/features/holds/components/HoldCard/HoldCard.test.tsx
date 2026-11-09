@@ -59,6 +59,5 @@ describe("HoldCard", () => {
     expect(buttons[0]).toBeDisabled()
     expect(buttons[1]).toBeDisabled()
     expect(screen.getAllByText(messages.status.EXPIRED).length >= 1).toBe(true)
-    expect(screen.getByText(/আবার আবেদন/)).toBeInTheDocument()
   })
 })

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ClassCard } from "@/features/classes/components/ClassCard"
 import { useClasses } from "@/features/classes/hooks/useClasses"
+import { Table, TableBody, TableHead, TableHeader } from "@/components/ui/table"
 import { InlineError } from "@/shared/components/InlineError"
 import type { MyHold } from "@/features/holds"
 import { messages } from "@/shared/i18n/messages.bn"
@@ -11,8 +12,6 @@ interface ClassListProps {
   applyingClassId: string | null
   onApply: (classId: string) => void
   myHolds: MyHold[]
-  applyErrorByClassId: Record<string, string>
-  onDismissApplyError: (classId: string) => void
 }
 
 function LoadingCards() {
@@ -38,8 +37,6 @@ export function ClassList({
   applyingClassId,
   onApply,
   myHolds,
-  applyErrorByClassId,
-  onDismissApplyError,
 }: ClassListProps) {
   const classesQuery = useClasses()
 
@@ -73,25 +70,44 @@ export function ClassList({
       ) : null}
 
       {classesQuery.isSuccess && classesQuery.data.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2">
-          {classesQuery.data.map((classSummary) => {
-            const applicationStatus =
-              holdsByClassId.get(classSummary.id) ?? null
-            const applyError = applyErrorByClassId[classSummary.id] ?? null
-            return (
-              <ClassCard
-                key={classSummary.id}
-                classSummary={classSummary}
-                canApply={studentId !== null}
-                isApplying={applyingClassId === classSummary.id}
-                applicationStatus={applicationStatus}
-                applyError={applyError}
-                onDismissError={() => onDismissApplyError(classSummary.id)}
-                onApply={onApply}
-              />
-            )
-          })}
-        </div>
+        <Table className="rounded-lg border border-border">
+          <TableHeader>
+            <TableHead className="text-left font-medium text-muted-foreground">
+              {messages.classes.name}
+            </TableHead>
+            <TableHead className="text-right font-medium text-muted-foreground tabular-nums">
+              {messages.classes.totalSeats}
+            </TableHead>
+            <TableHead className="text-right font-medium text-muted-foreground tabular-nums">
+              {messages.classes.heldSeats}
+            </TableHead>
+            <TableHead className="text-right font-medium text-muted-foreground tabular-nums">
+              {messages.classes.confirmedSeats}
+            </TableHead>
+            <TableHead className="text-right font-medium text-muted-foreground tabular-nums">
+              {messages.classes.availableSeats}
+            </TableHead>
+            <TableHead className="text-left font-medium text-muted-foreground">
+              {messages.classes.action}
+            </TableHead>
+          </TableHeader>
+          <TableBody>
+            {classesQuery.data.map((classSummary) => {
+              const applicationStatus =
+                holdsByClassId.get(classSummary.id) ?? null
+              return (
+                <ClassCard
+                  key={classSummary.id}
+                  classSummary={classSummary}
+                  canApply={studentId !== null}
+                  isApplying={applyingClassId === classSummary.id}
+                  applicationStatus={applicationStatus}
+                  onApply={onApply}
+                />
+              )
+            })}
+          </TableBody>
+        </Table>
       ) : null}
     </section>
   )

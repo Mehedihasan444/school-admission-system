@@ -1,50 +1,20 @@
 import { ClassList, CreateClassForm } from "@/features/classes"
 import { MyHoldsList, useApplyHold, useMyHolds } from "@/features/holds"
 import { StudentBar, useStudentId } from "@/features/student"
-import { toMessage } from "@/shared/i18n/errorMessages"
 import { messages } from "@/shared/i18n/messages.bn"
-import { useCallback, useState } from "react"
+import { useCallback } from "react"
 
 export function App() {
   const { studentId, saveStudentId } = useStudentId()
   const applyMutation = useApplyHold()
   const myHoldsQuery = useMyHolds(studentId)
-  const [applyErrorByClassId, setApplyErrorByClassId] = useState<
-    Record<string, string>
-  >({})
-
-  const onDismissApplyError = useCallback((classId: string) => {
-    setApplyErrorByClassId((prev) => {
-      const next = { ...prev }
-      delete next[classId]
-      return next
-    })
-  }, [])
 
   const handleApply = useCallback(
     (classId: string) => {
       if (!studentId) {
         return
       }
-      setApplyErrorByClassId({})
-      applyMutation.mutate(
-        { classId, studentId },
-        {
-          onError: (error) => {
-            setApplyErrorByClassId((prev) => ({
-              ...prev,
-              [classId]: toMessage(error),
-            }))
-          },
-          onSuccess: () => {
-            setApplyErrorByClassId((prev) => {
-              const next = { ...prev }
-              delete next[classId]
-              return next
-            })
-          },
-        }
-      )
+      applyMutation.mutate({ classId, studentId })
     },
     [studentId, applyMutation]
   )
@@ -71,8 +41,6 @@ export function App() {
           applyingClassId={applyingClassId}
           onApply={handleApply}
           myHolds={myHoldsQuery.data ?? []}
-          applyErrorByClassId={applyErrorByClassId}
-          onDismissApplyError={onDismissApplyError}
         />
       </div>
 

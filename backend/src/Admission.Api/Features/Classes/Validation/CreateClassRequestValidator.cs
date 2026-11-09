@@ -5,25 +5,31 @@ namespace Admission.Features.Classes.Validation;
 
 /// <summary>
 /// Validates the <c>CreateClassRequest</c> according to the API contract:
-
-/// - Name: trimmed, non-empty, max 200 characters.
-/// - TotalSeats: integer between 1 and 100000.
-
-/// Throws <c>AppException</c> with <c>VALIDATION_ERROR</c> code on first invalid field.
+/// name trimmed to 1..200 characters, totalSeats an integer from 1 to 100000.
+/// Returns the normalised class name so callers cannot accidentally use the
+/// untrimmed input.
 /// </summary>
 public sealed class CreateClassRequestValidator
 {
-  public void Validate(CreateClassRequest request)
-  {
-    var name = request.Name.Trim();
+  private const int MaxNameLength = 200;
+  private const int MinTotalSeats = 1;
+  private const int MaxTotalSeats = 100_000;
 
-    if (string.IsNullOrEmpty(name))
+  public string Validate(CreateClassRequest request)
+  {
+    var name = request.Name?.Trim() ?? string.Empty;
+
+    if (name.Length == 0)
       throw AppException.ValidationError("name", "name is required");
 
-    if (name.Length > 200)
-      throw AppException.ValidationError("name", "name must be at most 200 characters");
+    if (name.Length > MaxNameLength)
+      throw AppException.ValidationError("name", $"name must be at most {MaxNameLength} characters");
 
-    if (request.TotalSeats < 1 || request.TotalSeats > 100000)
-      throw AppException.ValidationError("totalSeats", "totalSeats must be between 1 and 100000");
+    if (request.TotalSeats < MinTotalSeats || request.TotalSeats > MaxTotalSeats)
+      throw AppException.ValidationError(
+          "totalSeats",
+          $"totalSeats must be between {MinTotalSeats} and {MaxTotalSeats}");
+
+    return name;
   }
 }

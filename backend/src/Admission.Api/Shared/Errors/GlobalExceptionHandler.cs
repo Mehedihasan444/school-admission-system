@@ -21,19 +21,44 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
   {
     if (exception is AppException appException)
     {
-      httpContext.Response.StatusCode = appException.Status;
-      await httpContext.Response.WriteAsJsonAsync(
-          new ErrorResponse(new ErrorBody(appException.Code, appException.Message)),
+      await WriteErrorAsync(httpContext, appException.Status, appException.Code, appException.Message, cancellationToken);
+      return true;
+    }
+
+    // Minimal API JSON binding failures surface as BadHttpRequestException
+    // (malformed JSON, wrong content type). They are client errors, not 500s.
+    if (exception is BadHttpRequestException)
+    {
+      await WriteErrorAsync(
+          httpContext,
+          StatusCodes.Status400BadRequest,
+          ErrorCodes.ValidationError,
+          ErrorMessages.ValidationError,
           cancellationToken);
       return true;
     }
 
     logUnhandled(logger, exception);
 
-    httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-    await httpContext.Response.WriteAsJsonAsync(
-        new ErrorResponse(new ErrorBody(ErrorCodes.InternalError, ErrorMessages.InternalError)),
+    await WriteErrorAsync(
+        httpContext,
+        StatusCodes.Status500InternalServerError,
+        ErrorCodes.InternalError,
+        ErrorMessages.InternalError,
         cancellationToken);
     return true;
+  }
+
+  private static Task WriteErrorAsync(
+      HttpContext httpContext,
+      int statusCode,
+      string code,
+      string message,
+      CancellationToken cancellationToken)
+  {
+    httpContext.Response.StatusCode = statusCode;
+    return httpContext.Response.WriteAsJsonAsync(
+        new ErrorResponse(new ErrorBody(code, message)),
+        cancellationToken);
   }
 }

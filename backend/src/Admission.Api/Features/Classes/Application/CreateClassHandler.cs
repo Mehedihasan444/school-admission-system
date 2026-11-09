@@ -28,13 +28,13 @@ public sealed class CreateClassHandler
 
   public async Task<CreateClassResponse> Handle(CreateClassRequest request, CancellationToken ct)
   {
-    _validator.Validate(request);
+    var name = _validator.Validate(request);
 
     var now = _clock.GetUtcNow();
     var entity = new ClassEntity
     {
       Id = Guid.CreateVersion7(),
-      Name = request.Name.Trim(),
+      Name = name,
       TotalSeats = request.TotalSeats,
       CreatedAt = now
     };

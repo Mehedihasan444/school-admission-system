@@ -33,7 +33,7 @@ export function StudentBar({ studentId, onSave }: StudentBarProps) {
   if (studentId && !isEditing) {
     return (
       <section
-        className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-card px-4 py-3 ring-1 ring-foreground/10"
+        className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-card px-4 py-3 ring-1 ring-foreground/10 w-full"
         aria-label={messages.student.heading}
       >
         <div className="flex items-center gap-2">
@@ -50,7 +50,7 @@ export function StudentBar({ studentId, onSave }: StudentBarProps) {
 
   return (
     <section
-      className="rounded-xl bg-card p-4 ring-1 ring-foreground/10"
+      className="rounded-xl bg-card p-4 ring-1 ring-foreground/10 w-full"
       aria-label={messages.student.heading}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">

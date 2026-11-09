@@ -1,13 +1,3 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ClassGrid } from "@/features/classes/components/ClassGrid"
 import { CreateClassForm } from "@/features/classes/components/CreateClassForm"
@@ -21,7 +11,6 @@ export function App() {
   const { studentId, saveStudentId } = useStudentId()
   const applyMutation = useApplyHold()
   const myHoldsQuery = useMyHolds(studentId)
-  const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("classes")
 
   const activeHoldCount =
@@ -71,18 +60,12 @@ export function App() {
             {messages.appSubtitle}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-xs tracking-wide">
-            {messages.student.savedPrefix} {studentId}
-          </span>
+      </header>
+        <div className="flex items-center gap-2 w-full">
           <StudentBar studentId={studentId} onSave={saveStudentId} />
         </div>
-      </header>
 
-      <CreateClassDialog
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-      />
+      <CreateClassForm />
 
       {/* Mobile: tabs; Desktop: grid + sidebar */}
       <div className="lg:hidden">
@@ -126,42 +109,6 @@ export function App() {
         </div>
       </div>
     </div>
-  )
-}
-
-function CreateClassDialog({
-  open,
-  onOpenChange,
-}: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-}) {
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger>
-        <Button type="button" variant="outline" size="sm">
-          {messages.createClass.heading}
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{messages.createClass.heading}</DialogTitle>
-          <DialogDescription>
-            {messages.createClass.description}
-          </DialogDescription>
-        </DialogHeader>
-        <CreateClassForm />
-        <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-          >
-            বাদ দিন
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
   )
 }
 

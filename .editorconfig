@@ -13,3 +13,4 @@ indent_size = 2
 
 [backend/src/Admission.Api/Infrastructure/Persistence/Migrations/*.cs]
 dotnet_diagnostic.CA1861.severity = suggestion
+

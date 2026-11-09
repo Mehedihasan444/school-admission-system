@@ -9,10 +9,9 @@ export function App() {
   const { studentId, saveStudentId } = useStudentId()
   const applyMutation = useApplyHold()
   const myHoldsQuery = useMyHolds(studentId)
-  const [applyErrorByClassId, setApplyErrorByClassId] = useState<Record<
-    string,
-    string
-  >>({})
+  const [applyErrorByClassId, setApplyErrorByClassId] = useState<
+    Record<string, string>
+  >({})
 
   const onDismissApplyError = useCallback((classId: string) => {
     setApplyErrorByClassId((prev) => {
@@ -28,24 +27,31 @@ export function App() {
         return
       }
       setApplyErrorByClassId({})
-      applyMutation.mutate({ classId, studentId }, {
-        onError: (error) => {
-          setApplyErrorByClassId((prev) => ({
-            ...prev,
-            [classId]: toMessage(error),
-          }))
-        },
-        onSuccess: () => {
-          setApplyErrorByClassId((prev) => {
-            const next = { ...prev }
-            delete next[classId]
-            return next
-          })
-        },
-      })
+      applyMutation.mutate(
+        { classId, studentId },
+        {
+          onError: (error) => {
+            setApplyErrorByClassId((prev) => ({
+              ...prev,
+              [classId]: toMessage(error),
+            }))
+          },
+          onSuccess: () => {
+            setApplyErrorByClassId((prev) => {
+              const next = { ...prev }
+              delete next[classId]
+              return next
+            })
+          },
+        }
+      )
     },
     [studentId, applyMutation]
   )
+
+  const applyingClassId = applyMutation.isPending
+    ? (applyMutation.variables?.classId ?? null)
+    : null
 
   return (
     <div className="mx-auto flex min-h-svh w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6">
@@ -62,7 +68,7 @@ export function App() {
         <CreateClassForm />
         <ClassList
           studentId={studentId}
-          applyingClassId={null}
+          applyingClassId={applyingClassId}
           onApply={handleApply}
           myHolds={myHoldsQuery.data ?? []}
           applyErrorByClassId={applyErrorByClassId}

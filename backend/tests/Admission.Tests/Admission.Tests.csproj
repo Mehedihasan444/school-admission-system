@@ -6,6 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Pin EF assemblies to the API project's version so Npgsql's minimum
+         dependency does not produce an assembly-version conflict in tests. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.14" />
+    <PackageReference Include="Testcontainers.PostgreSql" Version="4.16.0" />
     <ProjectReference Include="../../src/Admission.Api/Admission.Api.csproj" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageReference Include="xunit" Version="2.9.3" />

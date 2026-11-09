@@ -31,7 +31,7 @@ export function InlineError({ error, message, onDismiss }: InlineErrorProps) {
           className="ml-auto inline-flex items-center rounded-md text-xs text-muted-foreground hover:text-destructive focus:outline-none"
           aria-label={messages.errors.dismiss}
         >
-          dismissal
+          {messages.errors.dismiss}
         </button>
       ) : null}
     </Alert>

@@ -64,7 +64,7 @@ export function App() {
 
       <StudentBar studentId={studentId} onSave={saveStudentId} />
 
-      <div className="grid gap-6 lg:grid-cols-[2fr_3fr]">
+      <div className="grid gap-6 lg:grid-cols-2">
         <CreateClassForm />
         <ClassList
           studentId={studentId}

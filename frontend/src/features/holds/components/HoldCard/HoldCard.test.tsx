@@ -52,13 +52,13 @@ describe("HoldCard", () => {
       vi.advanceTimersByTime(4000)
     })
 
-    expect(screen.getByText(messages.status.EXPIRED)).toBeInTheDocument()
-    expect(
-      screen.getByRole("button", { name: messages.holds.pay })
-    ).toBeDisabled()
-    expect(
-      screen.getByRole("button", { name: messages.holds.cancel })
-    ).toBeDisabled()
+    const buttons = screen.getAllByRole("button", {
+      name: messages.status.EXPIRED,
+    })
+    expect(buttons).toHaveLength(2)
+    expect(buttons[0]).toBeDisabled()
+    expect(buttons[1]).toBeDisabled()
+    expect(screen.getAllByText(messages.status.EXPIRED).length >= 1).toBe(true)
     expect(screen.getByText(/আবার আবেদন/)).toBeInTheDocument()
   })
 })

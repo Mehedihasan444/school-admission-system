@@ -65,9 +65,11 @@ export function ClassList({
       ) : null}
 
       {classesQuery.isSuccess && classesQuery.data.length === 0 ? (
-        <p className="rounded-xl bg-muted px-4 py-6 text-center text-sm text-muted-foreground">
-          {messages.classes.empty}
-        </p>
+        <div className="rounded-xl bg-muted px-6 py-8 text-center">
+          <p className="text-sm text-muted-foreground">
+            {messages.classes.empty}
+          </p>
+        </div>
       ) : null}
 
       {classesQuery.isSuccess && classesQuery.data.length > 0 ? (

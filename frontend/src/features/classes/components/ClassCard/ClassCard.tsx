@@ -28,8 +28,10 @@ interface CountProps {
 
 function Count({ label, value }: CountProps) {
   return (
-    <div className="flex flex-col">
-      <span className="text-xs text-muted-foreground">{label}</span>
+    <div className="flex flex-col items-center gap-1 rounded-md bg-muted/50 p-2">
+      <span className="text-[10px] tracking-wider text-muted-foreground uppercase">
+        {label}
+      </span>
       <span className="text-lg font-semibold tabular-nums">{value}</span>
     </div>
   )
@@ -101,7 +103,7 @@ export function ClassCard({
           <InlineError error={applyError} onDismiss={onDismissError} />
         ) : null}
       </CardContent>
-      <CardFooter className="flex-col items-stretch gap-2 border-t pt-(--card-spacing)">
+      <CardFooter className="border-t pt-(--card-spacing)">
         <Button disabled={disabled} onClick={() => onApply(classSummary.id)}>
           {isApplying
             ? messages.classes.applying

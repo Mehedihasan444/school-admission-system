@@ -78,6 +78,7 @@ export function HoldCard({ hold, studentId }: HoldCardProps) {
       <CardFooter className="gap-2 border-t pt-(--card-spacing)">
         <Button
           disabled={!actions.canConfirm || isBusy}
+          variant={actions.canConfirm ? "default" : "outline"}
           onClick={handleConfirm}
         >
           {confirmMutation.isPending
@@ -85,13 +86,13 @@ export function HoldCard({ hold, studentId }: HoldCardProps) {
             : (actions.confirmLabel ?? messages.holds.pay)}
         </Button>
         <Button
-          variant="outline"
+          variant={actions.canCancel ? "outline" : "ghost"}
           disabled={!actions.canCancel || isBusy}
           onClick={handleCancel}
         >
           {cancelMutation.isPending
             ? messages.holds.cancelling
-            : messages.holds.cancel}
+            : (actions.cancelLabel ?? messages.holds.cancel)}
         </Button>
       </CardFooter>
     </Card>

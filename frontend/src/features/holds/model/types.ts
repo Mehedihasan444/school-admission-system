@@ -34,6 +34,7 @@ export interface HoldActions {
   showCountdown: boolean
   showApplyAgainHint: boolean
   confirmLabel: string | null
+  cancelLabel: string | null
   notice: string | null
 }
 
@@ -86,6 +87,7 @@ export function holdActionsFor(status: HoldStatus): HoldActions {
         showCountdown: true,
         showApplyAgainHint: false,
         confirmLabel: messages.holds.pay,
+        cancelLabel: messages.holds.cancel,
         notice: null,
       }
     case "CONFIRMED":
@@ -94,7 +96,8 @@ export function holdActionsFor(status: HoldStatus): HoldActions {
         canCancel: false,
         showCountdown: false,
         showApplyAgainHint: false,
-        confirmLabel: null,
+        confirmLabel: messages.status.CONFIRMED,
+        cancelLabel: messages.status.CONFIRMED,
         notice: messages.holds.confirmedNotice,
       }
     case "EXPIRED":
@@ -103,7 +106,8 @@ export function holdActionsFor(status: HoldStatus): HoldActions {
         canCancel: false,
         showCountdown: false,
         showApplyAgainHint: true,
-        confirmLabel: null,
+        confirmLabel: messages.status.EXPIRED,
+        cancelLabel: messages.status.EXPIRED,
         notice: `${messages.holds.expiredNotice} ${messages.holds.applyAgain}`,
       }
     case "CANCELLED":
@@ -112,7 +116,8 @@ export function holdActionsFor(status: HoldStatus): HoldActions {
         canCancel: false,
         showCountdown: false,
         showApplyAgainHint: true,
-        confirmLabel: null,
+        confirmLabel: messages.status.CANCELLED,
+        cancelLabel: messages.status.CANCELLED,
         notice: `${messages.holds.cancelledNotice} ${messages.holds.applyAgain}`,
       }
   }

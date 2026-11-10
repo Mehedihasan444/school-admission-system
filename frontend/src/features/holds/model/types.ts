@@ -87,7 +87,7 @@ export function getClassApplyState(
 
 /**
  * A stored HELD hold whose expiry has passed behaves as EXPIRED everywhere,
- * even before the background sweeper has updated the row (PRD 3.3).
+ * even before the background sweeper has updated the row.
  */
 export function effectiveStatus(
   status: HoldStatus,

@@ -10,6 +10,8 @@ Seat hold -> confirm -> expire admission system. First-come, first-served class 
 
 ## Quick Start
 
+The only prerequisite is Docker with the Compose plugin. No local .NET or Node installation is needed.
+
 ```bash
 docker compose up --build
 ```
@@ -20,6 +22,8 @@ docker compose up --build
   ```bash
   docker compose --profile multi up --build
   ```
+
+Data lives in the named PostgreSQL volume `pgdata`, so it survives `docker compose down` followed by `docker compose up`. Only `docker compose down -v` deletes it.
 
 ## Changing Hold Duration
 
@@ -53,7 +57,7 @@ Seat limits are enforced exclusively in **PostgreSQL**. The application uses a r
 ## Tests
 
 ### Backend Integration Tests
-Uses **Testcontainers** to run tests against a real PostgreSQL instance. Covers concurrency (50 seats, 200 parallel applies), expiry, idempotency, ownership, and contract validation.
+Uses **Testcontainers** to run tests against a real PostgreSQL instance, so Docker must be running. Covers concurrency (50 seats, 200 parallel applies), expiry, idempotency, ownership, and contract validation.
 
 ```bash
 cd backend
@@ -65,12 +69,15 @@ Vitest + React Testing Library. Covers countdown logic, error mapping, student i
 
 ```bash
 cd frontend
+npm install
 npm test
 ```
 
+For a quick manual check, run `HOLD_DURATION_SECONDS=15 docker compose up --build`, apply for a seat in the UI, and watch the countdown flip the application to `EXPIRED` without a page reload. Paying confirms the seat; cancelling a `HELD` application releases it.
+
 ## Folder Layout
 
-The repository follows a modular, feature-based vertical slice architecture (TRD section 4):
+The repository follows a modular, feature-based vertical slice architecture:
 
 ```
 backend/

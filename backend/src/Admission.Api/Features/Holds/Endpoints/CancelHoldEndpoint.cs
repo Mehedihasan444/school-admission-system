@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Routing;
 namespace Admission.Features.Holds.Endpoints;
 
 /// <summary>
-/// <c>DELETE /holds/{holdId}</c> (PRD 5.7). Requires <c>X-Student-Id</c>. Success: 204 no body.
+/// <c>DELETE /holds/{holdId}</c>. Requires <c>X-Student-Id</c>. Success: 204 no body.
 /// </summary>
 public static class CancelHoldEndpoint
 {

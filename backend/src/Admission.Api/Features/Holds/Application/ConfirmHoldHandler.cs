@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Admission.Features.Holds.Application;
 
 /// <summary>
-/// Handles <c>POST /holds/{holdId}/confirm</c> (PRD 5.6). Single atomic conditional UPDATE.
+/// Handles <c>POST /holds/{holdId}/confirm</c>. Single atomic conditional UPDATE.
 /// </summary>
 public sealed class ConfirmHoldHandler
 {

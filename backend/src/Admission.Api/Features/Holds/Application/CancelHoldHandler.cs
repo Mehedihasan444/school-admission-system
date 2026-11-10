@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Admission.Features.Holds.Application;
 
 /// <summary>
-/// Handles <c>DELETE /holds/{holdId}</c> (PRD 5.7). Single atomic conditional UPDATE.
+/// Handles <c>DELETE /holds/{holdId}</c>. Single atomic conditional UPDATE.
 /// </summary>
 public sealed class CancelHoldHandler
 {

@@ -10,7 +10,7 @@ using Npgsql;
 namespace Admission.Features.Holds.Application;
 
 /// <summary>
-/// Handles <c>POST /classes/{classId}/holds</c> (PRD 5.4). One PostgreSQL transaction
+/// Handles <c>POST /classes/{classId}/holds</c>. One PostgreSQL transaction
 /// that takes a row-level lock on the class to enforce seat limits across processes.
 /// </summary>
 public sealed class ApplyHoldHandler

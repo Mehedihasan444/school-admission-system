@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Routing;
 namespace Admission.Features.Classes.Endpoints;
 
 /// <summary>
-/// <c>GET /classes/{classId}</c> (PRD 5.3). Invalid GUID -> 404 CLASS_NOT_FOUND.
+/// <c>GET /classes/{classId}</c>. Invalid GUID -> 404 CLASS_NOT_FOUND.
 /// </summary>
 public static class GetClassEndpoint
 {

@@ -22,7 +22,7 @@ public static class SharedInfrastructureModule
     services.AddSingleton<AdmissionOptions>(sp =>
         sp.GetRequiredService<IOptions<AdmissionOptions>>().Value);
 
-    // The plain HOLD_DURATION_SECONDS env name (PRD section 9) overrides
+    // The plain HOLD_DURATION_SECONDS environment variable overrides
     // any value bound from configuration sources.
     services.PostConfigure<AdmissionOptions>(options =>
     {

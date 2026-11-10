@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Routing;
 namespace Admission.Features.Classes.Endpoints;
 
 /// <summary>
-/// <c>POST /classes</c> (PRD 5.1). Thin: parse body, call one handler, map result.
+/// <c>POST /classes</c>. Thin: parse body, call one handler, map result.
 /// The body is deserialised explicitly so malformed or missing JSON produces the
 /// same <c>{ "error": { "code", "message" } }</c> envelope as every other error.
 /// </summary>

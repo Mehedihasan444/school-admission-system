@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Routing;
 namespace Admission.Features.Holds.Endpoints;
 
 /// <summary>
-/// <c>GET /holds/{holdId}</c> (PRD 5.5). No <c>X-Student-Id</c> required.
+/// <c>GET /holds/{holdId}</c>. No <c>X-Student-Id</c> required.
 /// </summary>
 public static class GetHoldEndpoint
 {

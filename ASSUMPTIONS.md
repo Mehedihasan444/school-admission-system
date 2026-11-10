@@ -1,42 +1,51 @@
 # Assumptions and Judgment Calls
 
-This document records decisions made where the specification was ambiguous or environmental constraints required a specific approach.
+Where the brief left something open, this file records what I assumed and why. It is written to stand on its own, without other planning documents.
 
-### 1. Concurrency: Row-Level Locking
-I assumed that row-level locking on the `classes` table is the most robust way to enforce seat limits.
-- **Why**: Using a single transaction with `SELECT ... FOR UPDATE` prevents race conditions where two processes read the same available seat count and both attempt to claim the last seat.
-- **Alternative**: An atomic `UPDATE` on a `classes.remaining_seats` column was considered, but the spec requires counts to be *derived* from `holds` rows.
+### 1. Concurrency: row-level locking
+The brief requires `held + confirmed <= totalSeats` even under parallel requests and multiple backend processes, but does not prescribe a locking strategy.
+- **Assumption**: serialise each apply on the class row inside one PostgreSQL transaction.
+- **Why**: a `SELECT ... FOR UPDATE` on `classes` makes the seat count authoritative before the insert, so two requests cannot both take the last seat. An in-memory lock or counter would fail as soon as a second process shares the database.
+- **Alternative rejected**: a stored `remaining_seats` column updated atomically. Seat counts must be derived from `holds` rows, so a stored counter could drift.
 
-### 2. Clock Handling and Drift
-The frontend countdown must match the backend's `expires_at`.
-- **Assumption**: I assume client clocks can drift significantly.
-- **Decision**: The frontend computes an `offsetMs` using the `Date` header from every API response. This offset is used to adjust `Date.now()` to "Server Now" for the countdown.
-- **Verification**: Even if the client clock is wrong, the server remains the source of truth; if the countdown hits zero but the server hasn't expired it yet, the next poll reconciles the state.
+### 2. Clock handling and drift
+The countdown must match the server's `expiresAt`, but the browser clock is not trustworthy.
+- **Assumption**: client clocks can be minutes off.
+- **Decision**: every API response's `Date` header updates an `offsetMs`; the countdown uses `Date.now() + offsetMs` as "server now".
+- **Why**: the server stays authoritative. If the countdown reaches zero before the next poll, the poll reconciles the state.
 
-### 3. Hold Ownership and Privacy (404 vs 403)
-- **Decision**: When a student attempts to `Confirm` or `Cancel` a hold ID that does not belong to them, the API returns `404 HOLD_NOT_FOUND` instead of `403 FORBIDDEN`.
-- **Why**: This follows security best practices to avoid revealing the existence of specific hold IDs to unauthorized users.
+### 3. Hold ownership and privacy (404 instead of 403)
+The brief does not say what to return when a student confirms or cancels someone else's hold.
+- **Decision**: return `404 HOLD_NOT_FOUND`, not `403 FORBIDDEN`.
+- **Why**: a 403 would confirm that the hold ID exists. A 404 avoids leaking other students' hold IDs, and matches the behaviour for an unknown ID.
 
-### 4. Student ID Validation
-- **Decision**: I restricted `X-Student-Id` to exactly 17 ASCII digits (`0-9`).
-- **Why**: The spec mentioned "17-digit birth registration number". Restricting to ASCII prevents issues with different Unicode digit representations and ensures compatibility with the frontend's regex.
+### 4. Student ID validation
+The brief says "17-digit birth registration number" but not which digit characters are allowed.
+- **Decision**: `X-Student-Id` must be exactly 17 ASCII digits (`0`-`9`).
+- **Why**: the frontend already accepts ASCII digits only. Rejecting Unicode digit forms keeps the server and browser consistent and avoids two visually identical IDs being treated as different values.
 
-### 5. Multi-Process Safety (Bonus)
-- **Explanation**: All seat limits and concurrency rules are serialized through PostgreSQL row locks (`SELECT total_seats FROM classes WHERE id = @id FOR UPDATE`) and atomic conditional updates (`UPDATE holds ...`). Because locking and row states live exclusively in the database rather than process memory, running multiple backend processes (`backend` on :8080 and `backend2` on :8081) sharing the same PostgreSQL database is completely safe and guarantees `held + confirmed <= totalSeats` at all times.
-- **Advisory Lock for Migrations**: Startup database migrations use a PostgreSQL session advisory lock (`SELECT pg_advisory_lock(727274)`) so multiple containers starting simultaneously never race or corrupt schema migrations.
+### 5. Multi-process safety
+The bonus asks for a second backend instance, so I assumed two API processes may share one database.
+- **Decision**: all seat limits and state changes are serialised by PostgreSQL row locks and atomic conditional `UPDATE`s; nothing is kept in process memory.
+- **Migrations**: startup takes a PostgreSQL session advisory lock (`pg_advisory_lock(727274)`), so two containers starting together do not race the schema.
 
-### 6. Answers to PRD Section 15 Open Questions
-1. **Can the same class name be created twice?** Yes, not enforced as unique. Different shifts or academic sections might share the same base title.
-2. **Should `GET /holds/{holdId}` require the `X-Student-Id` header?** No, the contract specification lists no header for endpoint 5, allowing public status inspection by hold ID.
-3. **Can a student with a `CONFIRMED` admission in one class apply to another class?** Yes, rule B4 specifies at most one active application *per class*.
-4. **Can a cancelled or expired student apply again to the same class?** Yes, expired and cancelled holds are terminal and free the partial unique index slot, allowing a new hold to be created.
-5. **Does `expiresAt` use server time only?** Yes, UTC ISO 8601 (`DateTimeOffset` in C#) derived strictly from the injected `TimeProvider`.
-6. **Should the UI language be Bangla-only?** All user-facing messages, labels, and explanations are in Bangla, while standard technical terms like "class" and "seat" are retained in English as specified in PRD 8.3.
+### 6. Open questions from the brief
+1. **Can the same class name be created twice?** Yes; names are not unique. Different shifts or sections may share a title.
+2. **Does `GET /holds/{holdId}` require `X-Student-Id`?** No. The endpoint is public by hold ID, so a status page can be opened without the header.
+3. **Can a confirmed student apply to another class?** Yes. The limit is one active application per class, not one per student.
+4. **Can a cancelled or expired student apply again to the same class?** Yes. Those states are terminal and free the partial unique index slot.
+5. **Is `expiresAt` server time only?** Yes, UTC ISO 8601 derived from the injected `TimeProvider`, never from the browser.
+6. **Is the UI Bangla-only?** User-facing text is Bangla. Technical terms such as "class" and "seat" stay in English because they are the terms used in the API and the brief.
 
-### 7. One Active Hold Per Student
-- **Assumption**: A student can have at most one `HELD` or `CONFIRMED` hold per class.
-- **Decision**: I implemented this using a partial unique index in PostgreSQL (`WHERE status IN ('HELD', 'CONFIRMED')`). When a hold expires, its status changes to `EXPIRED`, which "frees" the unique slot for that student in that class.
+### 7. One active hold per student
+- **Assumption**: a student may have at most one `HELD` or `CONFIRMED` hold per class.
+- **Decision**: enforce it with a partial unique index on `(class_id, student_id) WHERE status IN ('HELD', 'CONFIRMED')`.
+- **Why**: the database, not application code, guarantees the rule under concurrency. An `EXPIRED` or `CANCELLED` row no longer occupies the slot.
 
-### 8. Effective Status
-- **Decision**: Both backend and frontend treat `HELD` rows with `expires_at <= now` as `EXPIRED` immediately, even if the background worker hasn't updated the database row yet.
-- **Why**: This ensures correctness is not dependent on the background worker's timing.
+### 8. Effective status
+- **Decision**: a `HELD` row with `expires_at <= now` is treated as `EXPIRED` in every read and write path, even before the background sweeper updates it.
+- **Why**: correctness must not depend on the sweeper's timing. The sweeper is only database hygiene.
+
+### 9. No authentication
+- **Assumption**: the brief does not ask for login or sessions, so the `X-Student-Id` header is trusted as the student's identity.
+- **Why**: adding authentication would be a new product requirement. Ownership checks still apply: a student cannot confirm or cancel another student's hold.

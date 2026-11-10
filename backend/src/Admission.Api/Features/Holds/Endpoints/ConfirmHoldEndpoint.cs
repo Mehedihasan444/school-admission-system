@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Routing;
 namespace Admission.Features.Holds.Endpoints;
 
 /// <summary>
-/// <c>POST /holds/{holdId}/confirm</c> (PRD 5.6). Requires <c>X-Student-Id</c>.
+/// <c>POST /holds/{holdId}/confirm</c>. Requires <c>X-Student-Id</c>.
 /// </summary>
 public static class ConfirmHoldEndpoint
 {

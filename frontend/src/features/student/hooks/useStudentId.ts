@@ -23,7 +23,7 @@ interface UseStudentIdResult {
 
 /**
  * Student identity lives in localStorage so a refresh or a closed tab keeps the
- * guardian's applications visible (PRD U4).
+ * guardian's applications visible after a refresh or a reopened browser.
  */
 export function useStudentId(): UseStudentIdResult {
   const [studentId, setStudentId] = useState<string | null>(() =>

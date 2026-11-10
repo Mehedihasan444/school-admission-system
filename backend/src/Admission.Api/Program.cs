@@ -21,7 +21,7 @@ builder.Services
 builder.Services.Configure<JsonOptions>(options =>
 {
   // Hold statuses travel as upper-case contract values: HELD, CONFIRMED,
-  // EXPIRED, CANCELLED (PRD 5.4-5.8).
+  // EXPIRED, CANCELLED.
   options.SerializerOptions.Converters.Add(
       new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper));
 });

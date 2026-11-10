@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Routing;
 namespace Admission.Features.Classes.Endpoints;
 
 /// <summary>
-/// <c>GET /classes</c> (PRD 5.2). Returns all classes with derived seat counts.
+/// <c>GET /classes</c>. Returns all classes with derived seat counts.
 /// </summary>
 public static class ListClassesEndpoint
 {

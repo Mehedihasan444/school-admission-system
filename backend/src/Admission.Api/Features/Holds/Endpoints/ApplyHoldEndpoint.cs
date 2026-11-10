@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Routing;
 namespace Admission.Features.Holds.Endpoints;
 
 /// <summary>
-/// <c>POST /classes/{classId}/holds</c> (PRD 5.4). Requires <c>X-Student-Id</c>.
+/// <c>POST /classes/{classId}/holds</c>. Requires <c>X-Student-Id</c>.
 /// </summary>
 public static class ApplyHoldEndpoint
 {

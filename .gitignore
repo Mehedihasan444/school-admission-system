@@ -107,6 +107,15 @@ desktop.ini
 *.bak
 
 # ==========================================
+# INTERNAL PLANNING DOCUMENTS (LOCAL ONLY)
+# ==========================================
+/PRD.md
+/TRD.md
+/AGENTS.md
+/TASK.md
+/PROJECT_OWNERSHIP_GUIDE.md
+
+# ==========================================
 # PNPM WORKSPACE
 # ==========================================
 .pnpm-debug.log*

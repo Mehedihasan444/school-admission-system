@@ -67,4 +67,4 @@ First-person record of which AI tools were used, where they were wrong, and how 
 - `cd frontend && npm test && npm run lint && npm run typecheck` — unit tests, lint and type checks.
 - `curl` against all eight endpoints — field names, camelCase, status strings, and the `201`/`204`/`409`/`400` codes.
 
-<!-- DEVELOPER: add anything else you personally caught or changed -->
+
